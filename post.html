@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Post | Anjou Zhao</title>
   <meta name="description" content="Writing detail page." />
+  <meta property="og:type" content="article" />
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body data-page="writing">
   <header class="site-header">
     <div class="container nav-wrap">
       <a class="brand" href="index.html">AZ</a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
       <nav>
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
@@ -33,6 +37,8 @@
     </div>
   </footer>
 
+  <div id="reading-progress"></div>
+  <button id="scroll-top" aria-label="Scroll to top">↑</button>
   <script type="module" src="assets/js/site.js"></script>
   <script type="module" src="assets/js/pages/post.js"></script>
 </body>
