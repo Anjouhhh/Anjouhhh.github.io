@@ -1,0 +1,87 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | Anjou Zhao</title>
+  <meta name="description" content="Personal site blending research notes, writing, and project work." />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html">AZ</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="writing.html">Writing</a>
+        <a href="projects.html">Projects</a>
+        <a href="now.html">Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <p class="eyebrow">Mathematics student • Future researcher • Builder</p>
+      <h1>A personal working archive for ideas, proofs, systems, and growth.</h1>
+      <p>
+        I write about mathematical thinking, technical experiments, and the workflow habits that help me do deep work.
+        This site is where I keep the long arc visible.
+      </p>
+    </section>
+
+    <section class="container block" id="start-here">
+      <h2>Start Here</h2>
+      <div class="grid three">
+        <a class="panel" href="about.html">
+          <h3>Meet the Person</h3>
+          <p>Who I am, what I study, and what I am trying to build over time.</p>
+        </a>
+        <a class="panel" href="writing.html">
+          <h3>Read the Thinking</h3>
+          <p>Notes and essays on math, AI, workflow, and personal development.</p>
+        </a>
+        <a class="panel" href="projects.html">
+          <h3>See the Work</h3>
+          <p>Selected projects with context: problem, approach, and current status.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="container block" id="recent-writing">
+      <div class="section-head">
+        <h2>Recent Writing</h2>
+        <a href="writing.html" class="text-link">View all writing</a>
+      </div>
+      <div id="home-posts" class="list"></div>
+    </section>
+
+    <section class="container block" id="selected-projects">
+      <div class="section-head">
+        <h2>Selected Projects</h2>
+        <a href="projects.html" class="text-link">View all projects</a>
+      </div>
+      <div id="home-projects" class="grid two"></div>
+    </section>
+
+    <section class="container block" id="now-snapshot">
+      <div class="section-head">
+        <h2>Current Now Snapshot</h2>
+        <a href="now.html" class="text-link">Open Now page</a>
+      </div>
+      <div id="home-now" class="panel"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <p>Building slowly, updating consistently.</p>
+      <p>&copy; <span id="year"></span> Anjou Zhao</p>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/site.js"></script>
+  <script type="module" src="assets/js/pages/home.js"></script>
+</body>
+</html>
