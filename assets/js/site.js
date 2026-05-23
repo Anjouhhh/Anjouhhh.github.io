@@ -1,3 +1,7 @@
+import { initCustomCursor } from "./cursor.js";
+
+initCustomCursor();
+
 const page = document.body.dataset.page;
 document.querySelectorAll("nav a").forEach((link) => {
   const href = link.getAttribute("href");

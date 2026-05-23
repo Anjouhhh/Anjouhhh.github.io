@@ -500,3 +500,81 @@ article h1 {
     padding-bottom: 36px;
   }
 }
+
+/* ── Custom Cursor (Moonshot Style) ── */
+@media (pointer: fine) {
+  /* Hide standard cursor globally on fine pointer devices, except inside form text inputs */
+  html,
+  body,
+  a,
+  button,
+  .chip,
+  .panel,
+  .card,
+  .item,
+  [role="button"] {
+    cursor: none !important;
+  }
+
+  /* Make sure form inputs keep their default text cursor for usability */
+  input,
+  textarea,
+  select {
+    cursor: auto !important;
+  }
+
+  .custom-cursor-core {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    background-color: var(--text);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    /* transform set dynamically by JS */
+    will-change: transform;
+    transition: opacity 0.25s ease, background-color 0.25s ease;
+  }
+
+  .custom-cursor-trail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    border: 1px solid color-mix(in srgb, var(--text) 45%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    /* transform, width, height, border-radius set dynamically by JS */
+    will-change: transform, width, height, border-radius;
+    transition: opacity 0.25s ease, border-color 0.2s ease, background-color 0.25s ease;
+  }
+
+  /* Core disappears during magnetic hover */
+  body.cursor-hovering-magnetic .custom-cursor-core {
+    opacity: 0;
+  }
+
+  /* Magnetic hover style for trail */
+  body.cursor-hovering-magnetic .custom-cursor-trail {
+    border-color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-width: 1.5px;
+  }
+
+  /* General hover style for large cards (trail scales up and fades slightly) */
+  body.cursor-hovering-general .custom-cursor-trail {
+    border-color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+
+  /* Clicking state feedback */
+  body.cursor-clicking .custom-cursor-trail {
+    border-color: var(--text);
+    background-color: color-mix(in srgb, var(--text) 12%, transparent);
+  }
+}
+
