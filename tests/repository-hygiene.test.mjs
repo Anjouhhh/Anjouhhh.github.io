@@ -22,6 +22,11 @@ async function findPythonArtifacts(directory, relativeDirectory = "") {
   return artifacts;
 }
 
+test("repository disables Jekyll for static publishing", async () => {
+  const marker = await readFile(path.join(repositoryRoot, ".nojekyll"), "utf8");
+  assert.equal(marker, "");
+});
+
 test("repository excludes Python test bytecode artifacts", async () => {
   const [gitignore, filesystemArtifacts, trackedFiles] = await Promise.all([
     readFile(path.join(repositoryRoot, ".gitignore"), "utf8").catch(() => ""),

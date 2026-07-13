@@ -156,7 +156,7 @@ py -3 -m playwright install chromium
 
 ## GitHub Pages deployment
 
-GitHub Pages publishes these files directly from the configured repository source. No build command is required: `index.html` remains the public root, `home.html` remains a separate route, and all assets use repository-relative URLs. Deploy source files as-is; do not introduce generated asset hashes, absolute local paths, server-only routes, or a build-only dependency without changing the accepted architecture and deployment configuration.
+GitHub Pages publishes these files directly from the configured repository source. The root `.nojekyll` marker disables Jekyll/Liquid processing so Markdown architecture notes and JavaScript examples are copied as static files rather than interpreted as templates. No build command is required: `index.html` remains the public root, `home.html` remains a separate route, and all assets use repository-relative URLs. Deploy source files as-is; do not introduce generated asset hashes, absolute local paths, server-only routes, or a build-only dependency without changing the accepted architecture and deployment configuration.
 
 ## Accessibility and performance conventions
 
