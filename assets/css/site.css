@@ -1,53 +1,55 @@
-:root {
-  --bg: #f7f7f4;
-  --surface: #ffffff;
-  --text: #1f2328;
-  --muted: #5f6b76;
-  --line: #d7dce2;
-  --accent: #2a4b6e;
-  --accent-soft: #e9eff5;
-  --maxw: 980px;
-  --radius: 10px;
-  --transition: 150ms ease;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111418;
-    --surface: #1c2128;
-    --text: #e0e5eb;
-    --muted: #8b97a3;
-    --line: #2d333b;
-    --accent: #6da3d4;
-    --accent-soft: #1d2d3e;
-  }
-}
-
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html,
+html {
+  color-scheme: light dark;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.65;
+  min-width: 320px;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at 86% -12%, color-mix(in srgb, var(--site-accent) 6%, transparent) 0, transparent 30rem),
+    var(--site-bg);
+  color: var(--site-text);
+  font-size: 1rem;
+  line-height: 1.68;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--site-accent-soft);
+  color: var(--site-text);
 }
 
 a {
   color: inherit;
+  text-underline-offset: 0.18em;
+}
+
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
+:where(a, button, input, textarea, select, summary, [tabindex]):focus:not(:focus-visible) {
+  outline: none;
 }
 
 .container {
-  width: min(var(--maxw), 92vw);
+  width: min(var(--site-max-width), 92vw);
   margin: 0 auto;
 }
 
 .narrow {
-  width: min(760px, 92vw);
+  width: min(var(--site-narrow-width), 92vw);
 }
 
 /* ── Header ── */
@@ -56,8 +58,8 @@ a {
   top: 0;
   z-index: 100;
   /* position: relative needed so mobile nav dropdown positions from header */
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  border-bottom: 1px solid var(--line);
+  background: var(--site-header-bg);
+  border-bottom: 1px solid var(--site-line);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -71,15 +73,17 @@ a {
 }
 
 .brand {
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-decoration: none;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  font-size: 1.1rem;
-  transition: opacity var(--transition);
+  transition: color var(--site-transition);
 }
 
 .brand:hover {
-  opacity: 0.7;
+  color: var(--site-accent);
 }
 
 nav {
@@ -90,17 +94,17 @@ nav {
 
 nav a {
   text-decoration: none;
-  color: var(--muted);
+  color: var(--site-muted);
   padding: 6px 10px;
-  border-radius: 6px;
-  transition: color var(--transition), background var(--transition);
+  border-radius: 2px;
+  transition: color var(--site-transition), background-color var(--site-transition);
   font-size: 0.92rem;
 }
 
 nav a.active,
 nav a:hover {
-  color: var(--text);
-  background: var(--accent-soft);
+  color: var(--site-text);
+  background: var(--site-accent-soft);
 }
 
 /* ── Hamburger (mobile) ── */
@@ -109,18 +113,18 @@ nav a:hover {
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 36px;
-  height: 36px;
-  padding: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
   background: none;
   border: none;
   cursor: pointer;
-  border-radius: 6px;
-  color: var(--text);
+  border-radius: 2px;
+  color: var(--site-text);
 }
 
 .nav-toggle:hover {
-  background: var(--accent-soft);
+  background: var(--site-accent-soft);
 }
 
 .nav-toggle span {
@@ -128,7 +132,7 @@ nav a:hover {
   height: 2px;
   background: currentColor;
   border-radius: 2px;
-  transition: transform var(--transition), opacity var(--transition);
+  transition: transform var(--site-transition), opacity var(--site-transition);
 }
 
 .nav-toggle[aria-expanded="true"] span:nth-child(1) {
@@ -142,31 +146,48 @@ nav a:hover {
 }
 
 @media (max-width: 580px) {
-  .nav-toggle {
-    display: flex;
+  /* Static-first fallback: links wrap below the brand until JS wires the menu. */
+  .nav-wrap {
+    flex-wrap: wrap;
+    padding-block: 10px 12px;
   }
 
   nav {
-    display: none;
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: var(--bg);
-    border-bottom: 1px solid var(--line);
-    flex-direction: column;
-    gap: 2px;
-    padding: 10px 16px 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  }
-
-  nav.open {
-    display: flex;
+    width: 100%;
+    gap: 2px 4px;
   }
 
   nav a {
     font-size: 1rem;
     padding: 10px 12px;
+  }
+
+  /* Progressive enhancement starts only after all navigation listeners exist. */
+  html.site-navigation-enhanced .nav-wrap {
+    flex-wrap: nowrap;
+    padding-block: 0;
+  }
+
+  html.site-navigation-enhanced .nav-toggle {
+    display: flex;
+  }
+
+  html.site-navigation-enhanced nav {
+    display: none;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    width: auto;
+    background: var(--site-bg);
+    border-bottom: 1px solid var(--site-line);
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 16px 16px;
+  }
+
+  html.site-navigation-enhanced nav.open {
+    display: flex;
   }
 }
 
@@ -185,7 +206,7 @@ main {
 }
 
 .eyebrow {
-  color: var(--muted);
+  color: var(--site-muted);
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.75rem;
@@ -196,23 +217,29 @@ main {
 h1,
 h2,
 h3 {
-  line-height: 1.3;
   margin-top: 0;
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.22;
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(1.6rem, 2.4vw + 1rem, 2.3rem);
+  max-width: 21ch;
+  font-size: clamp(2rem, 2.4vw + 1rem, 3.15rem);
+  letter-spacing: -0.018em;
 }
 
 h2 {
-  font-size: 1.2rem;
-  font-weight: 600;
   margin-bottom: 12px;
+  font-size: 1.35rem;
+  letter-spacing: -0.008em;
 }
 
 h3 {
-  font-size: 1.0rem;
   margin-bottom: 6px;
+  font-size: 1.08rem;
 }
 
 p,
@@ -243,20 +270,22 @@ ul {
 .card,
 .item {
   display: block;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--site-surface) 82%, transparent);
+  border: 1px solid var(--site-line);
+  border-radius: var(--site-radius);
   padding: 16px 18px;
   text-decoration: none;
-  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  transition: background-color var(--site-transition), border-color var(--site-transition);
 }
 
 .panel:hover,
 .card:hover,
-.item:hover {
-  border-color: var(--accent);
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 12%, transparent);
-  transform: translateY(-1px);
+.item:hover,
+.panel:focus-visible,
+.card:focus-visible,
+.item:focus-visible {
+  background: var(--site-surface);
+  border-color: var(--site-accent);
 }
 
 /* ── Section head ── */
@@ -275,7 +304,7 @@ ul {
 
 /* ── Meta / chips ── */
 .meta {
-  color: var(--muted);
+  color: var(--site-muted);
   font-size: 0.88rem;
   margin-bottom: 6px;
 }
@@ -287,28 +316,43 @@ ul {
 }
 
 .chip {
-  display: inline-block;
-  font-size: 0.82rem;
-  color: var(--muted);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  border-radius: 999px;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  margin: 0;
   padding: 4px 12px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-muted);
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  letter-spacing: inherit;
+  text-align: center;
   cursor: pointer;
   user-select: none;
-  transition: color var(--transition), background var(--transition), border-color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--site-transition), background-color var(--site-transition), border-color var(--site-transition);
 }
 
 .chip:hover {
-  color: var(--text);
-  border-color: var(--accent);
+  color: var(--site-text);
+  border-color: var(--site-accent);
 }
 
-.chip.active {
-  color: var(--accent);
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  font-weight: 500;
+.chip.active,
+.chip[aria-pressed="true"] {
+  color: var(--site-accent);
+  background: var(--site-accent-soft);
+  border-color: var(--site-accent);
+  font-weight: 600;
+}
+
+.chip:active {
+  color: var(--site-text);
+  background: var(--site-accent-soft);
 }
 
 .tag-row {
@@ -357,25 +401,30 @@ ul {
 }
 
 /* ── Links ── */
+.text-link,
+article a {
+  color: var(--site-accent);
+  text-decoration-thickness: 1px;
+}
+
 .text-link {
-  color: var(--accent);
-  text-decoration: none;
   font-size: 0.9rem;
-  transition: opacity var(--transition);
+  text-decoration: none;
+  transition: color var(--site-transition);
 }
 
 .text-link:hover {
+  color: var(--site-text);
   text-decoration: underline;
-  opacity: 0.85;
 }
 
 .subtle {
-  color: var(--muted);
+  color: var(--site-muted);
 }
 
 /* ── Footer ── */
 .site-footer {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--site-line);
   padding: 24px 0;
 }
 
@@ -386,7 +435,7 @@ ul {
   gap: 10px;
   flex-wrap: wrap;
   font-size: 0.88rem;
-  color: var(--muted);
+  color: var(--site-muted);
 }
 
 .footer-wrap p {
@@ -410,7 +459,7 @@ article h1 {
   left: 0;
   height: 3px;
   width: 0%;
-  background: var(--accent);
+  background: var(--site-accent);
   z-index: 200;
   transition: width 80ms linear;
   border-radius: 0 2px 2px 0;
@@ -421,12 +470,12 @@ article h1 {
   position: fixed;
   bottom: 28px;
   right: 28px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--muted);
+  background: var(--site-surface);
+  border: 1px solid var(--site-line);
+  color: var(--site-muted);
   font-size: 1.1rem;
   cursor: pointer;
   display: flex;
@@ -435,7 +484,7 @@ article h1 {
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
-  transition: opacity var(--transition), transform var(--transition), border-color var(--transition);
+  transition: opacity var(--site-transition), transform var(--site-transition), border-color var(--site-transition);
   z-index: 150;
 }
 
@@ -446,8 +495,8 @@ article h1 {
 }
 
 #scroll-top:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--site-accent);
+  color: var(--site-accent);
 }
 
 /* ── Responsive ── */
@@ -469,13 +518,6 @@ article h1 {
 
   .block {
     margin-top: 26px;
-  }
-
-  /* Disable hover transforms on touch to avoid stuck states */
-  .panel:hover,
-  .card:hover,
-  .item:hover {
-    transform: none;
   }
 
   .section-head {
@@ -501,25 +543,63 @@ article h1 {
   }
 }
 
+@media (hover: none), (pointer: coarse) {
+  nav a,
+  .chips button.chip {
+    min-height: 44px;
+  }
+
+  nav a {
+    display: flex;
+    align-items: center;
+  }
+
+  .panel:hover,
+  .card:hover,
+  .item:hover {
+    background: color-mix(in srgb, var(--site-surface) 82%, transparent);
+    border-color: var(--site-line);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .custom-cursor-core,
+  .custom-cursor-trail {
+    display: none;
+  }
+}
+
 /* ── Custom Cursor (Moonshot Style) ── */
-@media (pointer: fine) {
-  /* Hide standard cursor globally on fine pointer devices, except inside form text inputs */
-  html,
-  body,
-  a,
-  button,
-  .chip,
-  .panel,
-  .card,
-  .item,
-  [role="button"] {
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* JS adds this class only after the custom cursor and listeners are ready. */
+  body.custom-cursor-enabled,
+  body.custom-cursor-enabled a,
+  body.custom-cursor-enabled button,
+  body.custom-cursor-enabled .chip,
+  body.custom-cursor-enabled .panel,
+  body.custom-cursor-enabled .card,
+  body.custom-cursor-enabled .item,
+  body.custom-cursor-enabled [role="button"] {
     cursor: none !important;
   }
 
-  /* Make sure form inputs keep their default text cursor for usability */
-  input,
-  textarea,
-  select {
+  /* Form controls retain their native text/control cursor for usability. */
+  body.custom-cursor-enabled input,
+  body.custom-cursor-enabled textarea,
+  body.custom-cursor-enabled select {
     cursor: auto !important;
   }
 
@@ -529,7 +609,7 @@ article h1 {
     left: 0;
     width: 6px;
     height: 6px;
-    background-color: var(--text);
+    background-color: var(--site-text);
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
@@ -544,7 +624,7 @@ article h1 {
     left: 0;
     width: 32px;
     height: 32px;
-    border: 1px solid color-mix(in srgb, var(--text) 45%, transparent);
+    border: 1px solid color-mix(in srgb, var(--site-text) 45%, transparent);
     border-radius: 50%;
     pointer-events: none;
     z-index: 9998;
@@ -560,21 +640,21 @@ article h1 {
 
   /* Magnetic hover style for trail */
   body.cursor-hovering-magnetic .custom-cursor-trail {
-    border-color: var(--accent);
-    background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: var(--site-accent);
+    background-color: color-mix(in srgb, var(--site-accent) 8%, transparent);
     border-width: 1.5px;
   }
 
   /* General hover style for large cards (trail scales up and fades slightly) */
   body.cursor-hovering-general .custom-cursor-trail {
-    border-color: var(--accent);
-    background-color: color-mix(in srgb, var(--accent) 4%, transparent);
+    border-color: var(--site-accent);
+    background-color: color-mix(in srgb, var(--site-accent) 4%, transparent);
   }
 
   /* Clicking state feedback */
   body.cursor-clicking .custom-cursor-trail {
-    border-color: var(--text);
-    background-color: color-mix(in srgb, var(--text) 12%, transparent);
+    border-color: var(--site-text);
+    background-color: color-mix(in srgb, var(--site-text) 12%, transparent);
   }
 }
 

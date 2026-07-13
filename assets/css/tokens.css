@@ -1,0 +1,74 @@
+:root {
+  /* Quiet celestial editorial palette */
+  --palette-night: oklch(22% 0.06 265);
+  --palette-night-deep: oklch(16% 0.05 265);
+  --palette-night-mid: oklch(27% 0.065 258);
+  --palette-paper: oklch(96.5% 0.015 88);
+  --palette-paper-raised: oklch(98.5% 0.012 88);
+  --palette-warm-light: oklch(94% 0.02 95);
+  --palette-warm-foreground: oklch(96% 0.01 95);
+  --palette-blue-gray: oklch(78% 0.03 250);
+  --palette-gold: oklch(82% 0.14 90);
+  --palette-gold-soft: oklch(89% 0.085 92);
+  --palette-gold-ink: oklch(45% 0.1 78);
+  --palette-rose: oklch(62% 0.16 15);
+  --palette-door: oklch(42% 0.06 70);
+
+  --font-display: "Iowan Old Style", "Charter", "Songti SC", Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --ease-orbit: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-editorial: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Entry-scene roles */
+  --entry-bg: var(--palette-night);
+  --entry-bg-deep: var(--palette-night-deep);
+  --entry-bg-mid: var(--palette-night-mid);
+  --entry-surface: var(--palette-warm-light);
+  --entry-fg: var(--palette-warm-foreground);
+  --entry-muted: var(--palette-blue-gray);
+  --entry-border: oklch(58% 0.035 255 / 0.34);
+  --entry-accent: var(--palette-gold);
+  --entry-accent-soft: var(--palette-gold-soft);
+  --entry-rose: var(--palette-rose);
+  --entry-door: var(--palette-door);
+
+  /* Internal-site semantic roles */
+  --site-bg: var(--palette-paper);
+  --site-surface: var(--palette-paper-raised);
+  --site-text: oklch(27% 0.04 260);
+  --site-muted: oklch(46% 0.028 250);
+  --site-line: oklch(83% 0.018 86);
+  --site-accent: var(--palette-gold-ink);
+  --site-accent-soft: oklch(92.5% 0.035 88);
+  --site-header-bg: oklch(96.5% 0.015 88 / 0.9);
+  --site-shadow: oklch(20% 0.035 265 / 0.08);
+  --focus-color: var(--site-accent);
+  --focus-ring: 2px solid var(--focus-color);
+
+  --site-max-width: 980px;
+  --site-narrow-width: 760px;
+  --site-radius: 4px;
+  --site-transition: 160ms var(--ease-editorial);
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --site-bg: var(--palette-night-deep);
+    --site-surface: var(--palette-night);
+    --site-text: var(--palette-warm-foreground);
+    --site-muted: var(--palette-blue-gray);
+    --site-line: oklch(43% 0.035 258 / 0.62);
+    --site-accent: var(--palette-gold);
+    --site-accent-soft: oklch(31% 0.055 264);
+    --site-header-bg: oklch(16% 0.05 265 / 0.9);
+    --site-shadow: oklch(4% 0.025 265 / 0.3);
+  }
+}

@@ -1,94 +1,155 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home | Anjou Zhao</title>
-  <meta name="description" content="Personal site blending research notes, writing, and project work." />
-  <meta property="og:title" content="Home | Anjou Zhao" />
-  <meta property="og:description" content="Personal site blending research notes, writing, and project work." />
-  <meta property="og:type" content="website" />
-  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="A quiet archive of words, photographs, and places I have yet to reach." />
+  <meta name="theme-color" content="#141a31" />
+  <title>Anjou Zhao · Personal Blog</title>
+  <link rel="stylesheet" href="./assets/css/tokens.css" />
+  <link rel="stylesheet" href="./assets/css/entry.css" />
 </head>
-<body data-page="home">
-  <header class="site-header">
-    <div class="container nav-wrap">
-      <a class="brand" href="index.html">AZ</a>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="writing.html">Writing</a>
-        <a href="projects.html">Projects</a>
-        <a href="now.html">Now</a>
-      </nav>
+<body data-page="entry">
+  <main class="entry-shell" id="entry-shell" data-od-id="entry-scene">
+    <div class="sky-layers" aria-hidden="true">
+      <div class="star-field star-field--far" id="stars-far"></div>
+      <div class="star-field star-field--near" id="stars-near"></div>
     </div>
-  </header>
 
-  <main>
-    <section class="hero container">
-      <p class="eyebrow">Mathematics student • Future researcher • Builder</p>
-      <h1>A personal working archive for ideas, proofs, systems, and growth.</h1>
-      <p>
-        I write about mathematical thinking, technical experiments, and the workflow habits that help me do deep work.
-        This site is where I keep the long arc visible.
-      </p>
+    <header class="entry-intro" data-od-id="entry-intro">
+      <p class="identity" data-od-id="archive-label">Anjou Zhao · Personal Archive</p>
+      <h1 data-od-id="entry-title">Welcome to<span>my little planet</span></h1>
+      <p class="intro-copy" data-od-id="entry-description">A quiet archive of words, photographs, and places I have yet to reach.</p>
+      <blockquote class="entry-quote" data-od-id="entry-quote">
+        Love like you've never been hurt. Dance like nobody's watching. Sing like nobody's listening. work like you don't need the money. Live like it's heaven on earth.<cite>— Alfred D’Souza</cite>
+      </blockquote>
+    </header>
+
+    <p class="chapter-mark" data-od-id="orbit-chapter">Orbit 01<br />A quiet entrance</p>
+
+    <section class="orbit-garden" data-od-id="orbit-garden" aria-label="Star paths moving slowly around a rose planet">
+      <svg viewBox="0 0 720 720" role="img" aria-labelledby="orbit-title orbit-desc">
+        <title id="orbit-title">The orbital garden</title>
+        <desc id="orbit-desc">Three golden paths orbit a small planet where a single rose grows.</desc>
+        <defs>
+          <radialGradient id="planetPaint" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(320 300) rotate(58) scale(250)">
+            <stop stop-color="oklch(91% 0.025 100)" />
+            <stop offset="0.55" stop-color="oklch(76% 0.025 115)" />
+            <stop offset="1" stop-color="oklch(45% 0.035 235)" />
+          </radialGradient>
+          <radialGradient id="lampGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(432 398) rotate(90) scale(44)">
+            <stop stop-color="oklch(98% 0.035 95 / 0.94)" />
+            <stop offset="0.3" stop-color="oklch(87% 0.12 90 / 0.58)" />
+            <stop offset="1" stop-color="oklch(82% 0.14 90 / 0)" />
+          </radialGradient>
+          <clipPath id="planetClip">
+            <circle cx="360" cy="390" r="137" />
+          </clipPath>
+          <filter id="planetSoftShadow" x="-30%" y="-30%" width="160%" height="170%">
+            <feGaussianBlur stdDeviation="14" />
+          </filter>
+        </defs>
+
+        <g class="orbit-system">
+          <ellipse class="orbit-line orbit-line--outer" cx="360" cy="360" rx="314" ry="218" transform="rotate(-17 360 360)" />
+          <ellipse class="orbit-line orbit-line--middle" cx="360" cy="360" rx="260" ry="176" transform="rotate(23 360 360)" />
+          <ellipse class="orbit-line orbit-line--inner" cx="360" cy="360" rx="205" ry="142" transform="rotate(-42 360 360)" />
+
+          <g aria-hidden="true">
+            <circle class="orbit-tick" cx="101" cy="241" r="4.5" />
+            <circle class="orbit-tick" cx="602" cy="188" r="2.3" />
+            <circle class="orbit-tick" cx="641" cy="472" r="3.7" />
+            <path class="orbit-tick" d="M573 569l3.4 7.2 7.8.9-5.8 5.3 1.6 7.7-6.8-3.9-6.8 3.9 1.6-7.7-5.8-5.3 7.8-.9 3-7.2z" />
+            <circle cx="150" cy="493" r="17" fill="oklch(24% 0.045 265)" stroke="currentColor" stroke-opacity="0.25" />
+            <path d="M139 491c7-8 17-10 27-4" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.34" />
+          </g>
+
+          <ellipse class="planet-shadow" cx="372" cy="548" rx="145" ry="32" filter="url(#planetSoftShadow)" />
+          <circle class="planet-base" cx="360" cy="390" r="137" />
+          <g clip-path="url(#planetClip)">
+            <path class="planet-ridge-back" d="M208 403c46-33 87-46 128-23 43 24 69 14 111-12 35-22 74-8 102 17v120H208z" />
+            <path class="planet-ridge-mid" d="M215 432c48-21 87-19 123 4 43 28 82 17 121-6 37-22 67-11 89 8v101H215z" />
+            <path class="planet-ridge-front" d="M214 470c42-18 85-11 119 11 40 26 75 24 118 4 37-17 70-11 98 7v78H214z" />
+            <path class="planet-crater" d="M278 479c12-8 30-6 38 4-8 10-28 14-38 5" />
+            <path class="planet-crater" d="M420 510c14-7 33-4 39 7-11 8-31 10-39 1" />
+            <circle class="planet-crater" cx="321" cy="525" r="7" />
+          </g>
+
+          <g class="rose-signal" transform="translate(352 289)">
+            <path class="rose-signal__stem" d="M5 104C7 80 5 55 8 31M7 71c-12-6-17-1-18 8M7 60c12-8 18-3 20 5" />
+            <path class="rose-signal__bloom" d="M8 36C-8 31-15 18-7 8-4-4 10-8 18 1 30-4 42 6 39 18 45 28 36 39 24 38 19 47 4 46 0 37-4 38 1 37 8 36z" />
+            <path class="rose-signal__detail" d="M1 13c7-6 17-3 18 5 5-7 14-4 15 4M7 31c2-8 10-12 18-9" />
+          </g>
+
+          <g transform="translate(432 398)">
+            <circle class="lamp-aura" r="44" />
+            <circle class="lamp-core" r="4.2" />
+            <path d="M0 8v15M-5 24h10" stroke="oklch(51% 0.055 70)" stroke-width="2" stroke-linecap="round" />
+          </g>
+        </g>
+      </svg>
     </section>
 
-    <section class="container block" id="start-here">
-      <h2>Start Here</h2>
-      <div class="grid three">
-        <a class="panel" href="about.html">
-          <h3>Meet the Person</h3>
-          <p>Who I am, what I study, and what I am trying to build over time.</p>
-        </a>
-        <a class="panel" href="writing.html">
-          <h3>Read the Thinking</h3>
-          <p>Notes and essays on math, AI, workflow, and personal development.</p>
-        </a>
-        <a class="panel" href="projects.html">
-          <h3>See the Work</h3>
-          <p>Selected projects with context: problem, approach, and current status.</p>
-        </a>
-      </div>
-    </section>
+    <div class="horizon" aria-hidden="true" data-od-id="moon-horizon">
+      <svg viewBox="0 0 1600 420" preserveAspectRatio="none">
+        <path class="ridge-back" d="M0 178c177-49 321-33 463 6 137 38 259 44 403 4 188-52 370-47 734 15v217H0z" />
+        <path class="ridge-mid" d="M0 238c194-63 379-41 526 3 142 42 280 48 455 2 170-45 349-31 619 43v134H0z" />
+        <path class="ridge-front" d="M0 302c162-55 345-49 526-5 198 49 355 57 550 4 172-47 337-43 524 14v105H0z" />
+        <path class="ridge-edge" d="M0 302c162-55 345-49 526-5 198 49 355 57 550 4 172-47 337-43 524 14" />
+        <path class="stardust-path" d="M1040 242C810 278 618 294 451 320 324 340 219 352 129 360" />
+      </svg>
+    </div>
 
-    <section class="container block" id="recent-writing">
-      <div class="section-head">
-        <h2>Recent Writing</h2>
-        <a href="writing.html" class="text-link">View all writing</a>
-      </div>
-      <div id="home-posts" class="list"></div>
-    </section>
+    <div class="portal-wrap" data-od-id="portal-entry">
+      <a class="portal-door" id="portal-door" href="./home.html" aria-label="Open the door and enter Anjou's personal blog" data-od-id="portal-door-button">
+        <svg viewBox="0 0 124 166" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="stoneFrame" x1="62" y1="10" x2="62" y2="158" gradientUnits="userSpaceOnUse">
+              <stop stop-color="oklch(48% 0.035 245)" />
+              <stop offset="1" stop-color="oklch(25% 0.035 255)" />
+            </linearGradient>
+            <linearGradient id="doorWood" x1="62" y1="29" x2="62" y2="150" gradientUnits="userSpaceOnUse">
+              <stop stop-color="oklch(49% 0.075 72)" />
+              <stop offset="0.62" stop-color="oklch(38% 0.065 68)" />
+              <stop offset="1" stop-color="oklch(29% 0.05 65)" />
+            </linearGradient>
+            <radialGradient id="doorGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(63 91) rotate(90) scale(68 49)">
+              <stop stop-color="oklch(98% 0.045 95 / 0.92)" />
+              <stop offset="0.38" stop-color="oklch(88% 0.12 90 / 0.62)" />
+              <stop offset="1" stop-color="oklch(82% 0.14 90 / 0)" />
+            </radialGradient>
+            <filter id="doorSoft" x="-80%" y="-70%" width="260%" height="250%">
+              <feGaussianBlur stdDeviation="5" />
+            </filter>
+          </defs>
 
-    <section class="container block" id="selected-projects">
-      <div class="section-head">
-        <h2>Selected Projects</h2>
-        <a href="projects.html" class="text-link">View all projects</a>
-      </div>
-      <div id="home-projects" class="grid two"></div>
-    </section>
+          <ellipse class="portal-aura" cx="62" cy="91" rx="49" ry="67" fill="url(#doorGlow)" filter="url(#doorSoft)" />
+          <ellipse cx="62" cy="158" rx="43" ry="6" fill="oklch(7% 0.03 265 / 0.55)" />
+          <path d="M16 153V67C16 31 35 12 62 12s46 19 46 55v86" fill="url(#stoneFrame)" stroke="oklch(19% 0.035 252)" stroke-width="2" />
+          <path d="M25 150V68c0-29 15-46 37-46s37 17 37 46v82z" fill="oklch(13% 0.04 260)" />
+          <path d="M29 148V69c0-27 13-42 33-42s33 15 33 42v79z" fill="oklch(92% 0.05 95)" opacity="0.82" />
 
-    <section class="container block" id="now-snapshot">
-      <div class="section-head">
-        <h2>Current Now Snapshot</h2>
-        <a href="now.html" class="text-link">Open Now page</a>
-      </div>
-      <div id="home-now" class="panel"></div>
-    </section>
+          <g class="door-leaf">
+            <path d="M29 148V69c0-27 13-42 33-42s33 15 33 42v79z" fill="url(#doorWood)" stroke="oklch(24% 0.05 65)" stroke-width="1.5" />
+            <path d="M45 39v102M62 28v113M79 39v102" fill="none" stroke="oklch(28% 0.045 65 / 0.62)" stroke-width="1" />
+            <path d="M32 80h60M32 116h60" fill="none" stroke="oklch(29% 0.045 65 / 0.58)" stroke-width="1.2" />
+            <path d="M41 79V59c0-12 8-21 21-21s21 9 21 21v20z" fill="oklch(86% 0.075 95 / 0.72)" stroke="oklch(31% 0.055 68)" stroke-width="1.3" />
+            <path d="M62 39v39M42 60h40" fill="none" stroke="oklch(31% 0.055 68)" stroke-width="1" opacity="0.74" />
+            <rect x="77" y="96" width="8" height="14" rx="1.5" fill="oklch(27% 0.045 63)" />
+            <circle cx="81" cy="103" r="3" fill="currentColor" />
+          </g>
+
+          <path d="M12 153h100l-7 8H19z" fill="oklch(34% 0.035 250)" stroke="oklch(20% 0.03 250)" stroke-width="1" />
+          <path d="M22 154h80" stroke="oklch(63% 0.025 235 / 0.44)" stroke-width="1" />
+        </svg>
+      </a>
+      <span class="portal-hint" aria-hidden="true">Open the door</span>
+    </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-wrap">
-      <p>Building slowly, updating consistently.</p>
-      <p>&copy; <span id="year"></span> Anjou Zhao</p>
-    </div>
-  </footer>
+  <div class="transition-veil" id="transition-veil" aria-hidden="true"></div>
+  <p class="sr-only" id="entry-status" role="status" aria-live="polite"></p>
 
-  <button id="scroll-top" aria-label="Scroll to top">↑</button>
-  <script type="module" src="assets/js/site.js"></script>
-  <script type="module" src="assets/js/pages/home.js"></script>
+  <script type="module" src="./assets/js/entry.js"></script>
 </body>
 </html>
