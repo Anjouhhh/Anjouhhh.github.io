@@ -1,4 +1,24 @@
-﻿export const posts = [
+export const posts = [
+  {
+    slug: "notes-on-pg-how-to-make-wealth",
+    title: "Notes on Paul Graham's \"How to Make Wealth\"",
+    summary: "Favorite passages from PG's essay on building things people want — and why working with friends matters.",
+    date: "2026-07-13",
+    topic: "Growth",
+    type: "Repost",
+    readingTime: "3 min",
+    featured: true,
+    sourceUrl: "https://paulgraham.com/earn.html",
+    content: [
+      "Source: paulgraham.com/earn.html",
+      "相较于文章标题，\"如何成为百万富翁\"之类的字样，我喜欢文中很多我认为更重要的段落。",
+      "我最喜欢的讨论是这一段：",
+      "\"So how, exactly, do you make something people like so much that they tell their friends about it? ... is that it's hard to make something customers want that they don't already have. As soon as a new, satisfiable need is discovered, people rush to satisfy it. So you're going to have to discover a need that no one else knows about yet.\"",
+      "如果还有的话，就是这一段：",
+      "\"You should make something you and your friends want. Making something you and your friends want doesn't mean you have to build a consumer product. Maybe you and your friends are molecular biologists, and there's something cool that could be done now to DNA that everyone else has overlooked. Maybe you and your friends are into drones. The idea doesn't have to have a wide appeal. It literally just has to appeal to you and your friends.\"",
+      "I like the argument here, just like you should always make something you'll be proud of, at least you can't already find on the market. And always, working with your friends will be one of the most wonderful experiences in your life. But you still need to do the right thing the right way, and keep working on it until it reaches its theoretically intended potential."
+    ]
+  },
   {
     slug: "proof-writing-is-a-design-problem",
     title: "Proof Writing Is Also a Design Problem",
