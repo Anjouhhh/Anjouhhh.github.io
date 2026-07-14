@@ -4,7 +4,6 @@ const hrefByPage = {
   home: "home.html",
   about: "about.html",
   writing: "writing.html",
-  mirror: "mirror.html",
   projects: "projects.html",
   now: "now.html"
 };
