@@ -1,15 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Post | Anjou Zhao</title>
-  <meta name="description" content="Writing detail page." />
-  <meta property="og:type" content="article" />
+  <title>Mirror | Anjou Zhao</title>
+  <meta name="description" content="转载我喜欢的文章，附上原始来源和碎碎念。" />
+  <meta property="og:title" content="Mirror | Anjou Zhao" />
+  <meta property="og:description" content="转载我喜欢的文章，附上原始来源和碎碎念。" />
+  <meta property="og:type" content="website" />
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/site.css" />
 </head>
-<body data-page="writing">
+<body data-page="mirror">
   <header class="site-header">
     <div class="container nav-wrap">
       <a class="brand" href="home.html">AZ</a>
@@ -27,9 +29,14 @@
     </div>
   </header>
 
-  <main class="container page-main narrow">
-    <article id="post-detail"><h1>Loading post…</h1></article>
-    <p id="post-back-link"><a href="writing.html" class="text-link">Back to Writing</a></p>
+  <main class="container page-main">
+    <h1>Mirror</h1>
+    <p class="subtle" id="mirror-description"></p>
+
+    <section class="block">
+      <h2>所有文章</h2>
+      <div id="mirror-list" class="list"></div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -39,9 +46,8 @@
     </div>
   </footer>
 
-  <div id="reading-progress"></div>
   <button id="scroll-top" aria-label="Scroll to top">↑</button>
   <script type="module" src="assets/js/site.js"></script>
-  <script type="module" src="assets/js/pages/post.js"></script>
+  <script type="module" src="assets/js/pages/mirror.js"></script>
 </body>
 </html>
