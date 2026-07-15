@@ -1,10 +1,9 @@
-import { posts } from "../data/posts.js";
-import { postsZh } from "../data/zh/posts.js";
 import { renderPostDetail, renderPostNotFound } from "../core/templates.js";
 import { getPageLocale } from "../core/locale.js";
+import { loadPosts } from "../core/content-source.js";
 
 const locale = getPageLocale();
-const pagePosts = locale === "zh" ? postsZh : posts;
+const pagePosts = await loadPosts(locale);
 const detailEl = document.getElementById("post-detail");
 const backLinkEl = document.getElementById("post-back-link");
 const params = new URLSearchParams(window.location.search);

@@ -90,6 +90,20 @@ Edit `assets/js/data/projects.js`. Preserve the existing object shape, use a uni
 
 Edit `assets/js/data/now.js`. Update `updatedAt` using `YYYY-MM-DD`, then edit the `learning`, `building`, and `thinking` arrays. The same snapshot feeds both `home.html` and `now.html`.
 
+### Optional Jant content source
+
+The site can use a self-hosted Jant instance as a publishing backend while keeping this repository's existing visual frontend. Configure the public, unauthenticated Jant API base URL in `assets/js/config/content-source.js`:
+
+```js
+export const JANT_PUBLIC_API_BASE_URL = "https://your-jant.example.com";
+export const JANT_PUBLIC_API_BASE_URL_ZH = "";
+export const JANT_ADMIN_URL = "https://your-jant.example.com/signin";
+```
+
+The public pages read Jant's `/api/public/posts` endpoint; no Jant API token belongs in this repository or in browser code. If a URL is empty, the site uses the checked-in `assets/js/data/posts.js` or `assets/js/data/zh/posts.js`. If the remote API is unavailable or returns an invalid response, the same local fallback is used. The English and Chinese pages can point to separate Jant instances; leaving the Chinese URL empty keeps the local Chinese archive.
+
+When reading Jant from GitHub Pages in a browser, configure Jant's `CORS_ORIGINS` environment variable to allow the exact public origin. Do not use `*` for a production deployment unless you deliberately want every origin to read the API.
+
 ### Page copy
 
 Edit static copy in the relevant `.html` file. Do not rename IDs, `data-page` values, navigation targets, script paths, or render containers unless the matching page controller and tests are updated. Dynamic content should remain in the data modules and pass through `assets/js/core/templates.js`; do not bypass its escaping with ad hoc `innerHTML`.

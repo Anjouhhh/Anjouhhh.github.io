@@ -1,10 +1,10 @@
-import { posts } from "../data/posts.js";
-import { postsZh } from "../data/zh/posts.js";
 import { renderTopicButtons, renderWritingPosts } from "../core/templates.js";
 import { getPageLocale } from "../core/locale.js";
+import { configureJantAdminLink, loadPosts } from "../core/content-source.js";
 
 const locale = getPageLocale();
-const pagePosts = locale === "zh" ? postsZh : posts;
+configureJantAdminLink(document, locale);
+const pagePosts = await loadPosts(locale);
 const listEl = document.getElementById("post-list");
 const chipEl = document.getElementById("topic-chips");
 

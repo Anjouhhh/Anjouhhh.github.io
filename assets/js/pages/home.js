@@ -1,14 +1,13 @@
-import { posts } from "../data/posts.js";
-import { postsZh } from "../data/zh/posts.js";
 import { projects } from "../data/projects.js";
 import { projectsZh } from "../data/zh/projects.js";
 import { nowSnapshot } from "../data/now.js";
 import { nowSnapshotZh } from "../data/zh/now.js";
 import { renderHomeNow, renderHomePosts, renderHomeProjects } from "../core/templates.js";
 import { getPageLocale } from "../core/locale.js";
+import { loadPosts } from "../core/content-source.js";
 
 const locale = getPageLocale();
-const pagePosts = locale === "zh" ? postsZh : posts;
+const pagePosts = await loadPosts(locale);
 const pageProjects = locale === "zh" ? projectsZh : projects;
 const pageNow = locale === "zh" ? nowSnapshotZh : nowSnapshot;
 
