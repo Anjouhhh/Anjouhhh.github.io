@@ -28,6 +28,16 @@ export function initSiteShell() {
   initializedDocuments.add(document);
 
   const page = document.body.dataset.page;
+  document.querySelectorAll("[data-language-switch]").forEach((link) => {
+    const href = link.getAttribute("href");
+    if (!href || !window.location.search) return;
+
+    const hashIndex = href.indexOf("#");
+    const hash = hashIndex >= 0 ? href.slice(hashIndex) : "";
+    const path = (hashIndex >= 0 ? href.slice(0, hashIndex) : href).split("?")[0];
+    link.setAttribute("href", `${path}${window.location.search}${hash}`);
+  });
+
   document.querySelectorAll("nav a").forEach((link) => {
     const active = isCurrentPageLink(link, page);
     link.classList.toggle("active", active);

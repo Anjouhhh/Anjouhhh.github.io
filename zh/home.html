@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>主页 | Anjou Zhao</title>
+  <meta name="description" content="记录研究笔记、写作与项目实践的个人网站。" />
+  <meta property="og:title" content="主页 | Anjou Zhao" />
+  <meta property="og:description" content="记录研究笔记、写作与项目实践的个人网站。" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="home.html">AZ</a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="展开或收起导航" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav aria-label="主导航">
+        <a href="home.html">主页</a>
+        <a href="about.html">关于</a>
+        <a href="writing.html">文章</a>
+        <a href="projects.html">项目</a>
+        <a href="now.html">近况</a>
+        <a class="language-switch" href="../home.html" lang="en" hreflang="en" data-language-switch>English</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <p class="eyebrow">数学学生 · 未来的研究者 · 创造者</p>
+      <h1>一份记录思想、证明、系统与成长的个人工作档案。</h1>
+      <p>我在这里写数学思考、技术实验，以及帮助自己投入深度工作的习惯，也让漫长道路上的变化清晰可见。</p>
+    </section>
+
+    <section class="container block" id="start-here">
+      <h2>从这里开始</h2>
+      <div class="grid three">
+        <a class="panel" href="about.html">
+          <h3>认识我</h3>
+          <p>我是谁、正在学习什么，以及希望长期创造什么。</p>
+        </a>
+        <a class="panel" href="writing.html">
+          <h3>阅读思考</h3>
+          <p>关于数学、AI、工作流与个人成长的笔记和随笔。</p>
+        </a>
+        <a class="panel" href="projects.html">
+          <h3>看看作品</h3>
+          <p>了解部分项目的问题背景、解决方式与当前状态。</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="container block" id="recent-writing">
+      <div class="section-head">
+        <h2>最近文章</h2>
+        <a href="writing.html" class="text-link">查看全部文章</a>
+      </div>
+      <div id="home-posts" class="list"></div>
+    </section>
+
+    <section class="container block" id="selected-projects">
+      <div class="section-head">
+        <h2>精选项目</h2>
+        <a href="projects.html" class="text-link">查看全部项目</a>
+      </div>
+      <div id="home-projects" class="grid two"></div>
+    </section>
+
+    <section class="container block" id="now-snapshot">
+      <div class="section-head">
+        <h2>近期状态</h2>
+        <a href="now.html" class="text-link">打开近况页面</a>
+      </div>
+      <div id="home-now" class="panel"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <p>慢慢构建，持续更新。</p>
+      <p>&copy; <span id="year"></span> Anjou Zhao</p>
+    </div>
+  </footer>
+
+  <button id="scroll-top" aria-label="返回顶部">↑</button>
+  <script type="module" src="../assets/js/site.js"></script>
+  <script type="module" src="../assets/js/pages/home.js"></script>
+</body>
+</html>
+

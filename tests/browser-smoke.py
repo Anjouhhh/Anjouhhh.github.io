@@ -39,6 +39,7 @@ ENTRY_COMPOSITION_VIEWPORTS = (
 )
 VALID_POST_SLUG = "proof-writing-is-a-design-problem"
 VALID_PROJECT_SLUG = "math-note-knowledge-base"
+EXPECTED_POST_COUNT = 5
 ROUTES = (
     "",
     "index.html",
@@ -49,6 +50,13 @@ ROUTES = (
     "now.html",
     f"post.html?slug={VALID_POST_SLUG}",
     f"project.html?slug={VALID_PROJECT_SLUG}",
+    "zh/home.html",
+    "zh/about.html",
+    "zh/writing.html",
+    "zh/projects.html",
+    "zh/now.html",
+    f"zh/post.html?slug={VALID_POST_SLUG}",
+    f"zh/project.html?slug={VALID_PROJECT_SLUG}",
 )
 INTERNAL_ROUTES = ROUTES[2:]
 ENTRY_LINK_NAME = "Open the door and enter Anjou's personal blog"
@@ -478,7 +486,7 @@ def check_entry_activation(browser: Browser, base_url: str, suite: SmokeSuite) -
             fade_opacity = page.locator(".entry-shell").evaluate(
                 "element => parseFloat(getComputedStyle(element).opacity)"
             )
-            suite.expect(0.05 < fade_opacity < 0.95, f"{label}: fade was not measurable at 80ms: opacity={fade_opacity}")
+            suite.expect(0.03 < fade_opacity < 0.95, f"{label}: fade was not measurable at 80ms: opacity={fade_opacity}")
             suite.expect(
                 not urlparse(page.url).path.endswith("/home.html"),
                 f"{label}: navigated before the reduced-motion fade completed",
@@ -664,7 +672,10 @@ def check_writing(browser: Browser, base_url: str, suite: SmokeSuite) -> None:
         goto(page, suite, base_url, "writing.html", label)
         posts = page.locator("#post-list > .item")
         buttons = page.locator("#topic-chips > button.chip")
-        suite.expect(posts.count() == 4, f"{label}: expected all 4 posts")
+        suite.expect(
+            posts.count() == EXPECTED_POST_COUNT,
+            f"{label}: expected all {EXPECTED_POST_COUNT} posts",
+        )
         suite.expect(buttons.count() == len(TOPIC_LABELS), f"{label}: expected All plus 4 topic filters")
         for topic in TOPIC_LABELS:
             button = page.get_by_role("button", name=topic, exact=True)

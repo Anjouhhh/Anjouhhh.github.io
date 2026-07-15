@@ -107,6 +107,17 @@ nav a:hover {
   background: var(--site-accent-soft);
 }
 
+nav a.language-switch {
+  margin-left: 8px;
+  border: 1px solid var(--site-line);
+  color: var(--site-accent);
+  font-weight: 600;
+}
+
+nav a.language-switch:hover {
+  border-color: var(--site-accent);
+}
+
 /* ── Hamburger (mobile) ── */
 .nav-toggle {
   display: none;
@@ -160,6 +171,11 @@ nav a:hover {
   nav a {
     font-size: 1rem;
     padding: 10px 12px;
+  }
+
+  nav a.language-switch {
+    margin: 6px 0 0;
+    justify-content: center;
   }
 
   /* Progressive enhancement starts only after all navigation listeners exist. */

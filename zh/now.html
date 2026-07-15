@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>近况 | Anjou Zhao</title>
+  <meta name="description" content="我最近正在学习、构建与思考的事情。" />
+  <meta property="og:title" content="近况 | Anjou Zhao" />
+  <meta property="og:description" content="我最近正在学习、构建与思考的事情。" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+</head>
+<body data-page="now">
+  <header class="site-header"><div class="container nav-wrap">
+    <a class="brand" href="home.html">AZ</a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="展开或收起导航" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav aria-label="主导航">
+      <a href="home.html">主页</a><a href="about.html">关于</a><a href="writing.html">文章</a><a href="projects.html">项目</a><a href="now.html">近况</a>
+      <a class="language-switch" href="../now.html" lang="en" hreflang="en" data-language-switch>English</a>
+    </nav>
+  </div></header>
+
+  <main class="container page-main narrow">
+    <h1>近况</h1>
+    <p class="subtle">一份定期更新的快照，记录眼下最重要的事情。</p>
+    <section class="block"><h2>正在学习</h2><ul id="now-learning"></ul></section>
+    <section class="block"><h2>正在构建</h2><ul id="now-building"></ul></section>
+    <section class="block"><h2>正在思考</h2><ul id="now-thinking"></ul></section>
+    <section class="block"><p class="subtle" id="now-updated"></p></section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-wrap"><p>慢慢构建，持续更新。</p><p>&copy; <span id="year"></span> Anjou Zhao</p></div></footer>
+  <button id="scroll-top" aria-label="返回顶部">↑</button>
+  <script type="module" src="../assets/js/site.js"></script>
+  <script type="module" src="../assets/js/pages/now.js"></script>
+</body>
+</html>
+

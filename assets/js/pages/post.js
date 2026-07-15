@@ -1,25 +1,28 @@
 import { posts } from "../data/posts.js";
+import { postsZh } from "../data/zh/posts.js";
 import { renderPostDetail, renderPostNotFound } from "../core/templates.js";
+import { getPageLocale } from "../core/locale.js";
 
+const locale = getPageLocale();
+const pagePosts = locale === "zh" ? postsZh : posts;
 const detailEl = document.getElementById("post-detail");
 const backLinkEl = document.getElementById("post-back-link");
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 
-const post = posts.find((item) => item.slug === slug);
+const post = pagePosts.find((item) => item.slug === slug);
 
 if (!post) {
-  document.title = "Post not found | Anjou Zhao";
-  detailEl.innerHTML = renderPostNotFound();
+  document.title = locale === "zh" ? "未找到文章 | Anjou Zhao" : "Post not found | Anjou Zhao";
+  detailEl.innerHTML = renderPostNotFound(locale);
   if (backLinkEl) backLinkEl.hidden = true;
 } else {
   document.title = `${post.title} | Anjou Zhao`;
   const metaDesc = document.querySelector("meta[name='description']");
   if (metaDesc) metaDesc.setAttribute("content", post.summary);
 
-  detailEl.innerHTML = renderPostDetail(post);
+  detailEl.innerHTML = renderPostDetail(post, locale);
 
-  // Reading progress bar
   const bar = document.getElementById("reading-progress");
   if (bar) {
     window.addEventListener("scroll", () => {
