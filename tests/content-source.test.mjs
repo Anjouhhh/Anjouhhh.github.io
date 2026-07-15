@@ -28,10 +28,13 @@ test("Jant posts map into the existing site post shape", () => {
     summary: "First paragraph.",
     date: "2024-01-23",
     topic: "Building",
+    format: "note",
     type: "Note",
     readingTime: "1 min",
     featured: false,
     sourceUrl: undefined,
+    sourceName: undefined,
+    quoteText: undefined,
     content: ["First paragraph.", "Second paragraph."]
   });
 });
@@ -48,6 +51,26 @@ test("Chinese Jant slugs map back to the existing Chinese route", () => {
 
   assert.equal(mapped.slug, "proof-writing-is-a-design-problem");
   assert.equal(mapped.topic, "数学");
+});
+
+test("Jant formats preserve quote fields and support titleless posts", () => {
+  const quote = mapJantPost({
+    slug: "quote-example",
+    title: null,
+    format: "quote",
+    quoteText: "A quoted paragraph.\n\nA second quoted paragraph.",
+    sourceName: "Paul Graham",
+    sourceUrl: "https://paulgraham.com/love.html",
+    bodyText: "My thoughts about the quote.",
+    publishedAt: 1706000000
+  });
+
+  assert.equal(quote.title, "");
+  assert.equal(quote.format, "quote");
+  assert.equal(quote.quoteText, "A quoted paragraph.\n\nA second quoted paragraph.");
+  assert.equal(quote.sourceName, "Paul Graham");
+  assert.equal(quote.sourceUrl, "https://paulgraham.com/love.html");
+  assert.deepEqual(quote.content, ["My thoughts about the quote."]);
 });
 
 test("Jant HTML paragraphs and featured timestamps are preserved", () => {

@@ -89,11 +89,18 @@ function firstCollection(post, locale) {
 export function mapJantPost(post, locale = "en") {
   if (!post || typeof post.slug !== "string" || !post.slug.trim()) return null;
 
-  const bodyText = String(post.bodyText ?? "").trim();
-  const title = String(post.title ?? "").trim() || (locale === "zh" ? "未命名笔记" : "Untitled note");
-  const content = splitParagraphs(bodyText, title, post.bodyHtml);
-  const summary = String(post.summary ?? content[0].slice(0, 180));
   const format = Object.hasOwn(FORMAT_LABELS.en, post.format) ? post.format : "note";
+  const bodyText = String(post.bodyText ?? "").trim();
+  const quoteText = String(post.quoteText ?? "").trim();
+  const title = String(post.title ?? "").trim();
+  const content = bodyText || post.bodyHtml
+    ? splitParagraphs(bodyText, title || quoteText || FORMAT_LABELS[locale]?.[format] || format, post.bodyHtml)
+    : [];
+  const summary = String(
+    post.summary ??
+    (format === "quote" ? quoteText || content[0] : content[0] || title || FORMAT_LABELS[locale]?.[format] || format)
+  ).slice(0, 240);
+  const readingText = [quoteText, bodyText].filter(Boolean).join("\n\n");
 
   return {
     slug: getLocalSlug(post.slug, locale),
@@ -101,10 +108,13 @@ export function mapJantPost(post, locale = "en") {
     summary,
     date: toDateString(post.publishedAt),
     topic: firstCollection(post, locale),
+    format,
     type: FORMAT_LABELS[locale]?.[format] ?? FORMAT_LABELS.en[format],
-    readingTime: estimateReadingTime(bodyText, locale),
+    readingTime: estimateReadingTime(readingText, locale),
     featured: Boolean(post.featuredAt ?? post.featured),
     sourceUrl: post.url || post.sourceUrl || undefined,
+    sourceName: post.sourceName || undefined,
+    quoteText: quoteText || undefined,
     content
   };
 }

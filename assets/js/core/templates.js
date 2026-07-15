@@ -39,17 +39,71 @@ function strings(locale) {
   return copy[locale] ?? copy.en;
 }
 
+function postFormat(post) {
+  if (["note", "link", "quote"].includes(post?.format)) return post.format;
+  if (post?.quoteText) return "quote";
+  if (post?.sourceUrl) return "link";
+  return "note";
+}
+
+function postType(post, locale) {
+  const labels = {
+    en: { note: "Note", link: "Link", quote: "Quote" },
+    zh: { note: "随笔", link: "链接", quote: "摘录" }
+  };
+  const format = postFormat(post);
+  return post?.type || labels[locale]?.[format] || labels.en[format];
+}
+
+function safeExternalUrl(value) {
+  if (typeof value !== "string" || !value.trim()) return "";
+
+  try {
+    const url = new URL(value);
+    return ["http:", "https:", "mailto:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function splitText(value) {
+  return String(value ?? "")
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+function truncate(value, length = 260) {
+  const text = String(value ?? "").trim();
+  return text.length > length ? `${text.slice(0, length - 1)}…` : text;
+}
+
+function renderPostCard(post, locale) {
+  const type = postType(post, locale);
+  const title = post.title
+    ? `<h3>${escapeHtml(post.title)}</h3>`
+    : `<p class="post-format">${escapeHtml(type)}</p>`;
+  const meta = post.title
+    ? `<p class="meta">${escapeHtml(post.date)} · ${escapeHtml(type)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>`
+    : `<p class="meta">${escapeHtml(post.date)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>`;
+  const preview = postFormat(post) === "quote" && post.quoteText
+    ? `<blockquote class="post-excerpt">${escapeHtml(truncate(splitText(post.quoteText)[0] || post.quoteText))}</blockquote>`
+    : `<p>${escapeHtml(post.summary || post.content?.[0] || "")}</p>`;
+
+  return `
+    <a class="item" href="post.html?slug=${encodeURIComponent(post.slug)}">
+      ${title}
+      ${meta}
+      ${preview}
+    </a>`;
+}
+
 function renderTags(tags) {
   return tags.map((tag) => `<span class="chip">${escapeHtml(tag)}</span>`).join("");
 }
 
 export function renderHomePosts(posts, locale = "en") {
-  return posts.map((post) => `
-    <a class="item" href="post.html?slug=${encodeURIComponent(post.slug)}">
-      <h3>${escapeHtml(post.title)}</h3>
-      <p class="meta">${escapeHtml(post.date)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>
-      <p>${escapeHtml(post.summary)}</p>
-    </a>`).join("");
+  return posts.map((post) => renderPostCard(post, locale)).join("");
 }
 
 export function renderHomeProjects(projects, locale = "en") {
@@ -77,13 +131,7 @@ export function renderHomeNow(snapshot, locale = "en") {
 export function renderWritingPosts(posts, locale = "en") {
   if (posts.length === 0) return `<p class="subtle">${strings(locale).emptyPosts}</p>`;
 
-  return posts.map((post) => `
-    <a class="item" href="post.html?slug=${encodeURIComponent(post.slug)}">
-      <h3>${escapeHtml(post.title)}</h3>
-      <p class="meta">${escapeHtml(post.date)} · ${escapeHtml(post.type)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>
-      <p>${escapeHtml(post.summary)}</p>
-    </a>
-  `).join("");
+  return posts.map((post) => renderPostCard(post, locale)).join("");
 }
 
 function renderTopicButton(label, topic, activeTopic) {
@@ -134,10 +182,28 @@ export function renderProjectNotFound(locale = "en") {
 }
 
 export function renderPostDetail(post, locale = "en") {
+  const format = postFormat(post);
+  const type = postType(post, locale);
+  const title = post.title || type;
+  const titleClass = post.title ? "" : " post-heading--untitled";
+  const quote = format === "quote" && post.quoteText
+    ? `<blockquote class="post-quote">${splitText(post.quoteText).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</blockquote>`
+    : "";
+  const sourceUrl = safeExternalUrl(post.sourceUrl);
+  const sourceLabel = post.sourceName || (locale === "zh" ? "来源链接" : "Source link");
+  const source = sourceUrl
+    ? `<p class="post-source">${format === "quote" ? "— " : ""}<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceLabel)} ↗</a></p>`
+    : post.sourceName && format === "quote"
+      ? `<p class="post-source">— ${escapeHtml(post.sourceName)}</p>`
+      : "";
+  const body = (post.content ?? []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
+
   return `
-    <h1>${escapeHtml(post.title)}</h1>
-    <p class="meta">${escapeHtml(post.date)} · ${escapeHtml(post.type)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>
-    ${post.content.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
+    <h1 class="post-heading${titleClass}">${escapeHtml(title)}</h1>
+    <p class="meta">${escapeHtml(post.date)} · ${escapeHtml(type)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>
+    ${format === "quote" ? quote : ""}
+    ${source}
+    ${body}
   `;
 }
 

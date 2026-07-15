@@ -16,9 +16,9 @@ if (!post) {
   detailEl.innerHTML = renderPostNotFound(locale);
   if (backLinkEl) backLinkEl.hidden = true;
 } else {
-  document.title = `${post.title} | Anjou Zhao`;
+  document.title = `${post.title || post.type} | Anjou Zhao`;
   const metaDesc = document.querySelector("meta[name='description']");
-  if (metaDesc) metaDesc.setAttribute("content", post.summary);
+  if (metaDesc) metaDesc.setAttribute("content", post.summary || post.quoteText || post.type);
 
   detailEl.innerHTML = renderPostDetail(post, locale);
 

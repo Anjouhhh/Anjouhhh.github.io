@@ -87,6 +87,44 @@ test("writing list renderer escapes fields, encodes slugs, and retains its empty
   assert.match(renderWritingPosts([]), /No posts in this topic yet\./);
 });
 
+test("post renderers adapt titleless notes and quote posts", () => {
+  const titlelessNote = {
+    slug: "titleless-note",
+    title: "",
+    format: "note",
+    type: "Note",
+    summary: "A short note without a title.",
+    date: "2026-07-15",
+    topic: "Notes",
+    readingTime: "1 min",
+    content: ["A short note without a title."]
+  };
+  const quote = {
+    slug: "quote-post",
+    title: "",
+    format: "quote",
+    type: "Quote",
+    summary: "A quoted thought.",
+    date: "2026-07-15",
+    topic: "Mirror",
+    readingTime: "1 min",
+    quoteText: "A quoted thought.",
+    sourceName: "Paul Graham",
+    sourceUrl: "https://paulgraham.com/love.html",
+    content: ["My response."]
+  };
+
+  const listMarkup = renderWritingPosts([titlelessNote, quote]);
+  const detailMarkup = renderPostDetail(quote);
+
+  assert.match(listMarkup, /class="post-format">Note<\/p>/);
+  assert.match(listMarkup, /class="post-excerpt">A quoted thought.<\/blockquote>/);
+  assert.match(detailMarkup, /<h1 class="post-heading post-heading--untitled">Quote<\/h1>/);
+  assert.match(detailMarkup, /<blockquote class="post-quote">/);
+  assert.match(detailMarkup, /Paul Graham/);
+  assert.match(detailMarkup, /My response\./);
+});
+
 test("topic renderer creates accessible buttons with escaped attributes and labels", () => {
   const markup = renderTopicButtons([hostile], hostile);
 
