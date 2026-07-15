@@ -13,4 +13,3 @@ export const nowSnapshotZh = {
     "AI 在哪些地方真正改善了研究流程，又会在哪些地方带来浅薄的自信。"
   ]
 };
-
