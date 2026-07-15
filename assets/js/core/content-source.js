@@ -3,7 +3,9 @@ import { postsZh } from "../data/zh/posts.js";
 import {
   JANT_ADMIN_URL,
   JANT_PUBLIC_API_BASE_URL,
-  JANT_PUBLIC_API_BASE_URL_ZH
+  JANT_PUBLIC_API_BASE_URL_ZH,
+  JANT_PUBLIC_COLLECTION_SLUG,
+  JANT_PUBLIC_COLLECTION_SLUG_ZH
 } from "../config/content-source.js";
 
 const PAGE_SIZE = 100;
@@ -20,6 +22,15 @@ function getFallbackPosts(locale) {
 
 function getBaseUrl(locale) {
   return locale === "zh" ? JANT_PUBLIC_API_BASE_URL_ZH : JANT_PUBLIC_API_BASE_URL;
+}
+
+function getCollectionSlug(locale) {
+  return locale === "zh" ? JANT_PUBLIC_COLLECTION_SLUG_ZH : JANT_PUBLIC_COLLECTION_SLUG;
+}
+
+function getLocalSlug(slug, locale) {
+  if (locale === "zh" && slug.startsWith("zh-")) return slug.slice(3);
+  return slug;
 }
 
 function toDateString(value) {
@@ -68,7 +79,10 @@ function estimateReadingTime(text, locale) {
 }
 
 function firstCollection(post, locale) {
-  const collection = Array.isArray(post.collections) ? post.collections[0] : null;
+  const languageSlug = getCollectionSlug(locale);
+  const collection = Array.isArray(post.collections)
+    ? post.collections.find((item) => item?.slug !== languageSlug)
+    : null;
   return collection?.title || collection?.name || collection?.slug || DEFAULT_TOPIC[locale];
 }
 
@@ -82,7 +96,7 @@ export function mapJantPost(post, locale = "en") {
   const format = Object.hasOwn(FORMAT_LABELS.en, post.format) ? post.format : "note";
 
   return {
-    slug: post.slug,
+    slug: getLocalSlug(post.slug, locale),
     title,
     summary,
     date: toDateString(post.publishedAt),
@@ -95,9 +109,10 @@ export function mapJantPost(post, locale = "en") {
   };
 }
 
-function apiUrl(baseUrl, cursor) {
+function apiUrl(baseUrl, cursor, collectionSlug) {
   const url = new URL("api/public/posts", `${baseUrl.replace(/\/+$/, "")}/`);
   url.searchParams.set("limit", String(PAGE_SIZE));
+  if (collectionSlug) url.searchParams.set("collection", collectionSlug);
   if (cursor) url.searchParams.set("cursor", cursor);
   return url.href;
 }
@@ -121,7 +136,8 @@ async function requestPage(url, fetchImpl, timeoutMs) {
 
 export async function fetchJantPosts(baseUrl, locale = "en", {
   fetchImpl = globalThis.fetch,
-  timeoutMs = 5000
+  timeoutMs = 5000,
+  collectionSlug = ""
 } = {}) {
   if (!baseUrl || typeof fetchImpl !== "function") return [];
 
@@ -129,7 +145,7 @@ export async function fetchJantPosts(baseUrl, locale = "en", {
   let cursor = "";
 
   for (let page = 0; page < MAX_PAGES; page += 1) {
-    const payload = await requestPage(apiUrl(baseUrl, cursor), fetchImpl, timeoutMs);
+    const payload = await requestPage(apiUrl(baseUrl, cursor, collectionSlug), fetchImpl, timeoutMs);
     if (!Array.isArray(payload?.posts)) throw new Error("Jant API returned an invalid posts payload");
 
     remotePosts.push(...payload.posts);
@@ -160,7 +176,10 @@ export async function loadPosts(locale = "en", options = {}) {
   if (!baseUrl) return fallback;
 
   try {
-    const remotePosts = await fetchJantPosts(baseUrl, locale, options);
+    const remotePosts = await fetchJantPosts(baseUrl, locale, {
+      ...options,
+      collectionSlug: options.collectionSlug ?? getCollectionSlug(locale)
+    });
     return remotePosts.length > 0 ? remotePosts : fallback;
   } catch {
     return fallback;

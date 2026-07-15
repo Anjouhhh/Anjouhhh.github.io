@@ -96,11 +96,13 @@ The site can use a self-hosted Jant instance as a publishing backend while keepi
 
 ```js
 export const JANT_PUBLIC_API_BASE_URL = "https://your-jant.example.com";
-export const JANT_PUBLIC_API_BASE_URL_ZH = "";
+export const JANT_PUBLIC_API_BASE_URL_ZH = "https://your-jant.example.com";
+export const JANT_PUBLIC_COLLECTION_SLUG = "english";
+export const JANT_PUBLIC_COLLECTION_SLUG_ZH = "chinese";
 export const JANT_ADMIN_URL = "https://your-jant.example.com/signin";
 ```
 
-The public pages read Jant's `/api/public/posts` endpoint; no Jant API token belongs in this repository or in browser code. If a URL is empty, the site uses the checked-in `assets/js/data/posts.js` or `assets/js/data/zh/posts.js`. If the remote API is unavailable or returns an invalid response, the same local fallback is used. The English and Chinese pages can point to separate Jant instances; leaving the Chinese URL empty keeps the local Chinese archive.
+The public pages read Jant's `/api/public/posts` endpoint filtered by the matching language collection; no Jant API token belongs in this repository or in browser code. Chinese Jant slugs use a `zh-` prefix internally and map back to the existing Chinese page slugs in the frontend. If a URL is empty, the site uses the checked-in `assets/js/data/posts.js` or `assets/js/data/zh/posts.js`. If the remote API is unavailable or returns an invalid response, the same local fallback is used.
 
 When reading Jant from GitHub Pages in a browser, configure Jant's `CORS_ORIGINS` environment variable to allow the exact public origin. Do not use `*` for a production deployment unless you deliberately want every origin to read the API.
 
