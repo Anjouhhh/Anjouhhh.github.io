@@ -4,6 +4,7 @@ import {
   JANT_ADMIN_URL,
   JANT_PUBLIC_API_BASE_URL,
   JANT_PUBLIC_API_BASE_URL_ZH,
+  JANT_PUBLIC_CONTENT_MODE,
   JANT_PUBLIC_COLLECTION_SLUG,
   JANT_PUBLIC_COLLECTION_SLUG_ZH
 } from "../config/content-source.js";
@@ -26,6 +27,10 @@ function getBaseUrl(locale) {
 
 function getCollectionSlug(locale) {
   return locale === "zh" ? JANT_PUBLIC_COLLECTION_SLUG_ZH : JANT_PUBLIC_COLLECTION_SLUG;
+}
+
+function getContentMode(locale) {
+  return JANT_PUBLIC_CONTENT_MODE[locale] === "archive" ? "archive" : "latest";
 }
 
 function getLocalSlug(slug, locale) {
@@ -119,8 +124,9 @@ export function mapJantPost(post, locale = "en") {
   };
 }
 
-function apiUrl(baseUrl, cursor, collectionSlug) {
-  const url = new URL("api/public/posts", `${baseUrl.replace(/\/+$/, "")}/`);
+function apiUrl(baseUrl, cursor, collectionSlug, contentMode = "latest") {
+  const endpoint = contentMode === "archive" ? "api/public/archive" : "api/public/posts";
+  const url = new URL(endpoint, `${baseUrl.replace(/\/+$/, "")}/`);
   url.searchParams.set("limit", String(PAGE_SIZE));
   if (collectionSlug) url.searchParams.set("collection", collectionSlug);
   if (cursor) url.searchParams.set("cursor", cursor);
@@ -147,7 +153,8 @@ async function requestPage(url, fetchImpl, timeoutMs) {
 export async function fetchJantPosts(baseUrl, locale = "en", {
   fetchImpl = globalThis.fetch,
   timeoutMs = 5000,
-  collectionSlug = ""
+  collectionSlug = "",
+  contentMode = "latest"
 } = {}) {
   if (!baseUrl || typeof fetchImpl !== "function") return [];
 
@@ -155,7 +162,7 @@ export async function fetchJantPosts(baseUrl, locale = "en", {
   let cursor = "";
 
   for (let page = 0; page < MAX_PAGES; page += 1) {
-    const payload = await requestPage(apiUrl(baseUrl, cursor, collectionSlug), fetchImpl, timeoutMs);
+    const payload = await requestPage(apiUrl(baseUrl, cursor, collectionSlug, contentMode), fetchImpl, timeoutMs);
     if (!Array.isArray(payload?.posts)) throw new Error("Jant API returned an invalid posts payload");
 
     remotePosts.push(...payload.posts);
@@ -188,7 +195,8 @@ export async function loadPosts(locale = "en", options = {}) {
   try {
     const remotePosts = await fetchJantPosts(baseUrl, locale, {
       ...options,
-      collectionSlug: options.collectionSlug ?? getCollectionSlug(locale)
+      collectionSlug: options.collectionSlug ?? getCollectionSlug(locale),
+      contentMode: options.contentMode ?? getContentMode(locale)
     });
     return remotePosts.length > 0 ? remotePosts : fallback;
   } catch {

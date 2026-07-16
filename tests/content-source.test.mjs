@@ -106,6 +106,33 @@ test("Jant pagination is followed without exposing an API token", async () => {
   assert.equal(requests[0].options.headers.Authorization, undefined);
 });
 
+test("Jant archive mode includes Hidden from Latest content", async () => {
+  const requests = [];
+  const result = await fetchJantPosts("https://cms.example.com", "en", {
+    contentMode: "archive",
+    collectionSlug: "english",
+    fetchImpl: async (url) => {
+      requests.push(url);
+      return {
+        ok: true,
+        json: async () => ({
+          posts: [{
+            slug: "hidden-essay",
+            title: "Hidden Essay",
+            visibility: "latest_hidden",
+            bodyText: "Still public, but not on Latest.",
+            publishedAt: 1706000000
+          }],
+          nextCursor: null
+        })
+      };
+    }
+  });
+
+  assert.equal(result[0].slug, "hidden-essay");
+  assert.match(requests[0], /\/api\/public\/archive\?limit=100&collection=english$/);
+});
+
 test("configured loading scopes Jant requests to the locale collection", async () => {
   const requests = [];
   const result = await loadPosts("en", {
@@ -123,6 +150,7 @@ test("configured loading scopes Jant requests to the locale collection", async (
   });
 
   assert.equal(result[0].slug, "remote-only");
+  assert.match(requests[0], /\/api\/public\/archive\?/);
   assert.match(requests[0], /collection=english/);
 });
 
