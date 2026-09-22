@@ -30,7 +30,7 @@ function getCollectionSlug(locale) {
 }
 
 function getContentMode(locale) {
-  return JANT_PUBLIC_CONTENT_MODE[locale] === "archive" ? "archive" : "latest";
+  return JANT_PUBLIC_CONTENT_MODE?.[locale] === "archive" ? "archive" : "latest";
 }
 
 function getLocalSlug(slug, locale) {
@@ -40,6 +40,7 @@ function getLocalSlug(slug, locale) {
 
 function toDateString(value) {
   if (typeof value === "number" && Number.isFinite(value)) {
+    // Jant API returns timestamps in seconds, not milliseconds
     return new Date(value * 1000).toISOString().slice(0, 10);
   }
 
@@ -98,13 +99,27 @@ export function mapJantPost(post, locale = "en") {
   const bodyText = String(post.bodyText ?? "").trim();
   const quoteText = String(post.quoteText ?? "").trim();
   const title = String(post.title ?? "").trim();
+
+  // For link format: sourceUrl is the external link URL, url is internal link
+  // For quote format: sourceUrl is the source link (from quoteText attribution)
+  // For note format: no sourceUrl/url needed
+  const externalUrl = format === "link" ? (post.url || post.sourceUrl) : post.sourceUrl;
+
+  // Build content based on format:
+  // - quote: content should be the personal thoughts (bodyText)
+  // - note: content is the notes (bodyText)
+  // - link: content is the commentary (bodyText)
   const content = bodyText || post.bodyHtml
     ? splitParagraphs(bodyText, title || quoteText || FORMAT_LABELS[locale]?.[format] || format, post.bodyHtml)
     : [];
+
+  // Summary for display: quote shows the quote, others show first paragraph of content
   const summary = String(
     post.summary ??
     (format === "quote" ? quoteText || content[0] : content[0] || title || FORMAT_LABELS[locale]?.[format] || format)
   ).slice(0, 240);
+
+  // Reading time includes both quote and body for quotes, just body for others
   const readingText = [quoteText, bodyText].filter(Boolean).join("\n\n");
 
   return {
@@ -117,7 +132,7 @@ export function mapJantPost(post, locale = "en") {
     type: FORMAT_LABELS[locale]?.[format] ?? FORMAT_LABELS.en[format],
     readingTime: estimateReadingTime(readingText, locale),
     featured: Boolean(post.featuredAt ?? post.featured),
-    sourceUrl: post.url || post.sourceUrl || undefined,
+    sourceUrl: externalUrl || undefined,
     sourceName: post.sourceName || undefined,
     quoteText: quoteText || undefined,
     content
@@ -154,15 +169,16 @@ export async function fetchJantPosts(baseUrl, locale = "en", {
   fetchImpl = globalThis.fetch,
   timeoutMs = 5000,
   collectionSlug = "",
-  contentMode = "latest"
+  contentMode = ""
 } = {}) {
   if (!baseUrl || typeof fetchImpl !== "function") return [];
 
   const remotePosts = [];
   let cursor = "";
+  const mode = contentMode || getContentMode(locale);
 
   for (let page = 0; page < MAX_PAGES; page += 1) {
-    const payload = await requestPage(apiUrl(baseUrl, cursor, collectionSlug, contentMode), fetchImpl, timeoutMs);
+    const payload = await requestPage(apiUrl(baseUrl, cursor, collectionSlug, mode), fetchImpl, timeoutMs);
     if (!Array.isArray(payload?.posts)) throw new Error("Jant API returned an invalid posts payload");
 
     remotePosts.push(...payload.posts);

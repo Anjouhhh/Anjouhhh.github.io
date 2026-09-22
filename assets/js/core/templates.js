@@ -80,15 +80,26 @@ function truncate(value, length = 260) {
 
 function renderPostCard(post, locale) {
   const type = postType(post, locale);
+  const format = postFormat(post);
+
+  // Title section: show title if exists, otherwise show format label
   const title = post.title
     ? `<h3>${escapeHtml(post.title)}</h3>`
     : `<p class="post-format">${escapeHtml(type)}</p>`;
-  const meta = post.title
-    ? `<p class="meta">${escapeHtml(post.date)} · ${escapeHtml(type)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>`
-    : `<p class="meta">${escapeHtml(post.date)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>`;
-  const preview = postFormat(post) === "quote" && post.quoteText
-    ? `<blockquote class="post-excerpt">${escapeHtml(truncate(splitText(post.quoteText)[0] || post.quoteText))}</blockquote>`
-    : `<p>${escapeHtml(post.summary || post.content?.[0] || "")}</p>`;
+
+  // Meta section: always include type label for clarity, especially for untitled posts
+  const meta = `<p class="meta">${escapeHtml(post.date)} · ${escapeHtml(type)} · ${escapeHtml(post.topic)} · ${escapeHtml(post.readingTime)}</p>`;
+
+  // Preview section based on format
+  let preview;
+  if (format === "quote" && post.quoteText) {
+    preview = `<blockquote class="post-excerpt">${escapeHtml(truncate(splitText(post.quoteText)[0] || post.quoteText))}</blockquote>`;
+  } else if (format === "link" && post.sourceUrl) {
+    // For links, show the external URL and summary
+    preview = `<p class="post-url">${escapeHtml(truncate(post.sourceUrl, 100))}</p><p>${escapeHtml(post.summary || post.content?.[0] || "")}</p>`;
+  } else {
+    preview = `<p>${escapeHtml(post.summary || post.content?.[0] || "")}</p>`;
+  }
 
   return `
     <a class="item" href="post.html?slug=${encodeURIComponent(post.slug)}">
@@ -186,16 +197,30 @@ export function renderPostDetail(post, locale = "en") {
   const type = postType(post, locale);
   const title = post.title || type;
   const titleClass = post.title ? "" : " post-heading--untitled";
+
+  // Quote rendering: show the quoted text as blockquote
   const quote = format === "quote" && post.quoteText
     ? `<blockquote class="post-quote">${splitText(post.quoteText).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</blockquote>`
     : "";
+
+  // Source/URL rendering based on format
   const sourceUrl = safeExternalUrl(post.sourceUrl);
   const sourceLabel = post.sourceName || (locale === "zh" ? "来源链接" : "Source link");
-  const source = sourceUrl
-    ? `<p class="post-source">${format === "quote" ? "— " : ""}<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceLabel)} ↗</a></p>`
-    : post.sourceName && format === "quote"
-      ? `<p class="post-source">— ${escapeHtml(post.sourceName)}</p>`
-      : "";
+
+  let source = "";
+  if (format === "quote" && sourceUrl) {
+    // Quote: show as "— [source link]"
+    source = `<p class="post-source">— <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceLabel)} ↗</a></p>`;
+  } else if (format === "quote" && post.sourceName) {
+    // Quote without URL: show attribution
+    source = `<p class="post-source">— ${escapeHtml(post.sourceName)}</p>`;
+  } else if (format === "link" && sourceUrl) {
+    // Link: show as clickable external link
+    const linkLabel = post.title || (locale === "zh" ? "查看原文" : "Read original");
+    source = `<p class="post-source"><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkLabel)} ↗</a></p>`;
+  }
+
+  // Body: personal thoughts/commentary for all formats
   const body = (post.content ?? []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
 
   return `
