@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { projects } from "../assets/js/data/projects.js";
+import { projectsZh } from "../assets/js/data/zh/projects.js";
 
 class FakeClassList {
   constructor() {
@@ -381,4 +383,152 @@ test("missing current post is noindex and still links to an existing other-local
   assert.equal(languageSwitch.hrefValue, "zh/post.html?slug=zglx9");
   assert.equal(created.length, 1);
   assert.equal(created[0].getAttribute("content"), "noindex");
+});
+
+function createContentMeta({ name, property, content }) {
+  const attributes = new Map();
+  if (name) attributes.set("name", name);
+  if (property) attributes.set("property", property);
+  attributes.set("content", content);
+  return {
+    setAttribute(attribute, value) {
+      attributes.set(attribute, value);
+    },
+    getAttribute(attribute) {
+      return attributes.get(attribute) ?? null;
+    }
+  };
+}
+
+function metaMatches(meta, selector) {
+  const name = meta.getAttribute("name");
+  const property = meta.getAttribute("property");
+  return selector.split(",").some((part) => {
+    const chunk = part.trim();
+    if (chunk === "meta[name='description']") return name === "description";
+    if (chunk === "meta[property='og:description']") return property === "og:description";
+    if (chunk === "meta[name='twitter:description']") return name === "twitter:description";
+    if (chunk === "meta[property='twitter:description']") return property === "twitter:description";
+    return false;
+  });
+}
+
+async function renderProjectPage({ lang, search, metas }) {
+  const detail = { innerHTML: "" };
+  const outerBackLink = { hidden: false, classList: new FakeClassList() };
+  const created = [];
+  const fakeDocument = {
+    title: lang.startsWith("zh") ? "项目 | Anjou Zhao" : "Project | Anjou Zhao",
+    documentElement: { lang },
+    head: {
+      appendChild(node) {
+        created.push(node);
+      }
+    },
+    createElement() {
+      return createMetaElement();
+    },
+    getElementById(id) {
+      if (id === "project-detail") return detail;
+      if (id === "project-back-link") return outerBackLink;
+      return null;
+    },
+    querySelector() {
+      return null;
+    },
+    querySelectorAll(selector) {
+      return metas.filter((meta) => metaMatches(meta, selector));
+    }
+  };
+  const fakeWindow = {
+    location: { search },
+    addEventListener() {}
+  };
+  const originalDocument = globalThis.document;
+  const originalWindow = globalThis.window;
+  globalThis.document = fakeDocument;
+  globalThis.window = fakeWindow;
+
+  try {
+    const moduleUrl = new URL("../assets/js/pages/project.js", import.meta.url);
+    moduleUrl.searchParams.set("test", `${Date.now()}-${Math.random()}`);
+    const page = await import(moduleUrl.href);
+    return { detail, fakeDocument, created, page };
+  } finally {
+    globalThis.document = originalDocument;
+    globalThis.window = originalWindow;
+  }
+}
+
+test("project page sets the description from the existing summary in both locales", async () => {
+  for (const [lang, catalog, fallback] of [
+    ["en", projects, "Project detail page."],
+    ["zh-CN", projectsZh, "项目详情页。"]
+  ]) {
+    for (const project of catalog) {
+      const description = createContentMeta({ name: "description", content: fallback });
+      const og = createContentMeta({ property: "og:description", content: fallback });
+      const twitter = createContentMeta({ name: "twitter:description", content: fallback });
+      const { detail, fakeDocument, created } = await renderProjectPage({
+        lang,
+        search: `?slug=${project.slug}`,
+        metas: [description, og, twitter]
+      });
+
+      assert.equal(description.getAttribute("content"), project.summary);
+      assert.equal(og.getAttribute("content"), project.summary);
+      assert.equal(twitter.getAttribute("content"), project.summary);
+      assert.equal(fakeDocument.title, `${project.title} | Anjou Zhao`);
+      assert.match(detail.innerHTML, new RegExp(project.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      assert.equal(created.length, 0);
+    }
+  }
+});
+
+test("project page leaves absent social description tags absent", async () => {
+  const project = projects[0];
+  const description = createContentMeta({ name: "description", content: "Project detail page." });
+  const { created } = await renderProjectPage({
+    lang: "en",
+    search: `?slug=${project.slug}`,
+    metas: [description]
+  });
+
+  assert.equal(description.getAttribute("content"), project.summary);
+  assert.equal(created.length, 0);
+});
+
+test("unknown project slug keeps the default description", async () => {
+  const description = createContentMeta({ name: "description", content: "Project detail page." });
+  const og = createContentMeta({ property: "og:description", content: "Project detail page." });
+  const { fakeDocument, created } = await renderProjectPage({
+    lang: "en",
+    search: "?slug=does-not-exist",
+    metas: [description, og]
+  });
+
+  assert.equal(fakeDocument.title, "Project not found | Anjou Zhao");
+  assert.equal(description.getAttribute("content"), "Project detail page.");
+  assert.equal(og.getAttribute("content"), "Project detail page.");
+  assert.equal(created.length, 0);
+});
+
+test("blank or missing project summaries keep the current description", async () => {
+  const description = createContentMeta({ name: "description", content: "Project detail page." });
+  const { page, fakeDocument } = await renderProjectPage({
+    lang: "en",
+    search: "?slug=does-not-exist",
+    metas: [description]
+  });
+  const originalDocument = globalThis.document;
+  globalThis.document = fakeDocument;
+
+  try {
+    for (const summary of ["", "   ", null, undefined]) {
+      page.applyProjectSummary(summary);
+      assert.equal(description.getAttribute("content"), "Project detail page.");
+    }
+  } finally {
+    globalThis.document = originalDocument;
+  }
 });

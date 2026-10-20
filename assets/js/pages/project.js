@@ -18,5 +18,17 @@ if (!project) {
   if (backLinkEl) backLinkEl.hidden = true;
 } else {
   document.title = `${project.title} | Anjou Zhao`;
+  applyProjectSummary(project.summary);
   detailEl.innerHTML = renderProjectDetail(project, locale);
+}
+
+export function applyProjectSummary(summary) {
+  const text = typeof summary === "string" ? summary.trim() : "";
+  if (!text) return;
+
+  document.querySelectorAll(
+    "meta[name='description'], meta[property='og:description'], meta[name='twitter:description'], meta[property='twitter:description']"
+  ).forEach((meta) => {
+    meta.setAttribute("content", text);
+  });
 }
