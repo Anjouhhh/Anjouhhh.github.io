@@ -129,9 +129,16 @@ body {
   top: clamp(54px, 15vh, 150px);
   z-index: 5;
   width: min(32rem, 36vw);
+}
+
+.entry-intro > :not(.enter-button) {
   opacity: 0;
   transform: translateY(10px);
   animation: intro-in 0.85s var(--ease-orbit) 0.62s forwards;
+}
+
+.entry-intro > .intro-copy {
+  transform: none;
 }
 
 .identity {
@@ -183,6 +190,30 @@ h1 span {
   line-height: 1.65;
   letter-spacing: 0;
   text-wrap: pretty;
+}
+
+.enter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin-top: 24px;
+  padding: 12px 24px;
+  min-height: 44px;
+  background: oklch(0.82 0.14 90);
+  color: oklch(0.16 0.05 265);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.enter-button:focus-visible {
+  outline: 3px solid oklch(0.99 0.01 95);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 3px oklch(0.16 0.05 265);
 }
 
 .entry-quote {
@@ -591,8 +622,9 @@ body.is-entering .transition-veil {
 
   .portal-wrap {
     left: max(18px, env(safe-area-inset-left));
-    bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
+    bottom: max(40px, calc(env(safe-area-inset-bottom) + 12px));
     gap: 11px;
+    transform: translateY(0);
   }
 
   .portal-door { width: clamp(92px, 25vw, 104px); }
@@ -625,12 +657,12 @@ body.is-entering .transition-veil {
     transition-delay: 0ms !important;
   }
 
-  .entry-intro,
+  .entry-intro > :not(.enter-button),
   .orbit-garden,
   .horizon,
   .portal-wrap { opacity: 1; }
 
-  .entry-intro,
+  .entry-intro > :not(.enter-button),
   .horizon,
   .portal-wrap { transform: translateY(0); }
 
