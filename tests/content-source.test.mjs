@@ -7,6 +7,7 @@ import {
   localeHasPost,
   mapJantPost
 } from "../assets/js/core/content-source.js";
+import { renderHomePosts, renderPostDetail, renderWritingPosts } from "../assets/js/core/templates.js";
 
 test("content source keeps the checked-in posts when Jant is not configured", async () => {
   assert.strictEqual(await loadPosts("en", { baseUrl: "" }), posts);
@@ -99,7 +100,7 @@ test("Jant pagination is followed without exposing an API token", async () => {
     return { ok: true, json: async () => page };
   };
 
-  const result = await fetchJantPosts("https://cms.example.com/blog", "en", { fetchImpl });
+  const result = await fetchJantPosts("https://cms.example.com/blog", "en", { fetchImpl, contentMode: "latest" });
 
   assert.deepEqual(result.map((post) => post.slug), ["first", "second"]);
   assert.match(requests[0].url, /\/blog\/api\/public\/posts\?limit=100$/);
@@ -215,6 +216,179 @@ test("locale existence check uses mirrored local posts when Jant is not configur
 
   assert.equal(found, true);
   assert.deepEqual(requests, []);
+});
+
+test("an empty title uses the first HTML heading and drops it from the body", () => {
+  const mapped = mapJantPost({
+    slug: "notes-on-pg-how-to-make-wealth",
+    title: null,
+    format: "quote",
+    bodyHtml: "<h2>Notes on Paul Graham&#39;s &quot;How to Make Wealth&quot;</h2><p>Source: paulgraham.com/earn.html</p><p>Second paragraph.</p>",
+    bodyText: "Notes on Paul Graham's \"How to Make Wealth\" Source: paulgraham.com/earn.html",
+    quoteText: "So how, exactly, do you make something people like?",
+    sourceName: "Paul Graham",
+    sourceUrl: "https://paulgraham.com/earn.html",
+    publishedAt: 1706000000
+  });
+
+  assert.equal(mapped.title, "Notes on Paul Graham's \"How to Make Wealth\"");
+  assert.deepEqual(mapped.content, ["Source: paulgraham.com/earn.html", "Second paragraph."]);
+  assert.equal(mapped.content.join("\n").includes("How to Make Wealth"), false);
+
+  const detail = renderPostDetail(mapped);
+  const cards = `${renderWritingPosts([mapped])}${renderHomePosts([mapped])}`;
+  assert.match(detail, /<h1 class="post-heading">Notes on Paul Graham&#039;s &quot;How to Make Wealth&quot;<\/h1>/);
+  assert.equal(detail.includes("post-heading--untitled"), false);
+  assert.equal((detail.match(/How to Make Wealth/g) || []).length, 1);
+  assert.match(cards, /<h3>Notes on Paul Graham&#039;s &quot;How to Make Wealth&quot;<\/h3>/);
+  assert.equal(cards.includes("post-format"), false);
+});
+
+test("an empty Chinese title uses the first heading in that post's body", () => {
+  const mapped = mapJantPost({
+    slug: "zh-notes-on-pg-how-to-make-wealth",
+    title: null,
+    format: "quote",
+    bodyHtml: "<h2>Paul Graham《如何创造财富》的笔记</h2><p>原文：paulgraham.com/earn.html</p>",
+    bodyText: "Paul Graham《如何创造财富》的笔记 原文：paulgraham.com/earn.html",
+    publishedAt: 1706000000
+  }, "zh");
+
+  assert.equal(mapped.slug, "notes-on-pg-how-to-make-wealth");
+  assert.equal(mapped.title, "Paul Graham《如何创造财富》的笔记");
+  assert.deepEqual(mapped.content, ["原文：paulgraham.com/earn.html"]);
+});
+
+test("an empty title uses a markdown heading when the body has no HTML heading", () => {
+  const mapped = mapJantPost({
+    slug: "markdown-heading",
+    title: "",
+    format: "note",
+    bodyText: "Before\n\n## Kept Title ##\n\nAfter\n\n### Later heading\n\nEnd",
+    publishedAt: 1706000000
+  });
+
+  assert.equal(mapped.title, "Kept Title");
+  assert.deepEqual(mapped.content, ["Before", "After", "### Later heading", "End"]);
+});
+
+test("an empty title ignores headings below h3 and keeps the format label path", () => {
+  const quote = mapJantPost({
+    slug: "3vvec",
+    title: null,
+    format: "quote",
+    bodyHtml: "<h4>Not a title</h4><p>The full article goes much deeper.</p>",
+    bodyText: "The full article goes much deeper.",
+    quoteText: "A quoted paragraph.",
+    publishedAt: 1706000000
+  });
+  const excerpt = mapJantPost({
+    slug: "zglx9",
+    title: null,
+    format: "quote",
+    bodyHtml: "<p>所以，我们都没有机会走上那条绝对正确的道路。</p>",
+    bodyText: "所以，我们都没有机会走上那条绝对正确的道路。",
+    publishedAt: 1706000000
+  }, "zh");
+
+  assert.equal(quote.title, "");
+  assert.deepEqual(quote.content, ["The full article goes much deeper."]);
+  assert.equal(excerpt.title, "");
+  assert.equal(excerpt.type, "摘录");
+});
+
+test("the first non-empty heading wins, including an HTML heading stored in the text body", () => {
+  const html = mapJantPost({
+    slug: "heading-order",
+    title: "   ",
+    format: "note",
+    bodyHtml: "<h2> </h2><h1>Actual</h1><p>Paragraph.</p>",
+    publishedAt: 1706000000
+  });
+  const text = mapJantPost({
+    slug: "heading-in-text",
+    title: "",
+    format: "note",
+    bodyText: "<h3>From text <em>heading</em></h3>\n\nParagraph.",
+    publishedAt: 1706000000
+  });
+
+  assert.equal(html.title, "Actual");
+  assert.deepEqual(html.content, ["Paragraph."]);
+  assert.equal(text.title, "From text heading");
+  assert.deepEqual(text.content, ["Paragraph."]);
+});
+
+test("a body that is only a heading becomes the title and is not repeated", () => {
+  const html = mapJantPost({
+    slug: "heading-only-html",
+    title: null,
+    format: "note",
+    bodyHtml: "<h2>Only Heading</h2>",
+    bodyText: "",
+    publishedAt: 1706000000
+  });
+  const markdown = mapJantPost({
+    slug: "heading-only-markdown",
+    title: null,
+    format: "note",
+    bodyText: "   ## Only Heading",
+    publishedAt: 1706000000
+  });
+
+  assert.equal(html.title, "Only Heading");
+  assert.deepEqual(html.content, []);
+  assert.equal(markdown.title, "Only Heading");
+  assert.deepEqual(markdown.content, []);
+});
+
+test("posts that already have a title keep that title and body", () => {
+  const mapped = mapJantPost({
+    slug: "kept",
+    title: "Given Title",
+    format: "note",
+    bodyHtml: "<h2>Body Heading</h2><p>Paragraph.</p>",
+    bodyText: "## Body Heading\n\nParagraph.",
+    publishedAt: 1706000000
+  });
+  const markdownOnly = mapJantPost({
+    slug: "kept-markdown",
+    title: "Given Title",
+    format: "note",
+    bodyText: "## Body Heading\n\nParagraph.",
+    publishedAt: 1706000000
+  });
+
+  assert.equal(mapped.title, "Given Title");
+  assert.deepEqual(mapped.content, ["Paragraph."]);
+  assert.equal(markdownOnly.title, "Given Title");
+  assert.deepEqual(markdownOnly.content, ["## Body Heading", "Paragraph."]);
+});
+
+test("a matched local post keeps its type while an empty remote title uses the body heading", async () => {
+  const result = await fetchJantPosts("https://cms.example.com", "en", {
+    contentMode: "archive",
+    collectionSlug: "english",
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({
+        posts: [{
+          slug: "notes-on-pg-how-to-make-wealth",
+          title: null,
+          format: "quote",
+          bodyHtml: "<h2>Notes on Paul Graham&#39;s &quot;How to Make Wealth&quot;</h2><p>Source: paulgraham.com/earn.html</p>",
+          bodyText: "Notes on Paul Graham's \"How to Make Wealth\" Source: paulgraham.com/earn.html",
+          quoteText: "So how",
+          publishedAt: 1706000000
+        }],
+        nextCursor: null
+      })
+    })
+  });
+
+  assert.equal(result[0].title, "Notes on Paul Graham's \"How to Make Wealth\"");
+  assert.equal(result[0].type, "Repost");
+  assert.deepEqual(result[0].content, ["Source: paulgraham.com/earn.html"]);
 });
 
 test("Jant failures fall back to local content", async () => {

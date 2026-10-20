@@ -132,8 +132,9 @@ function jsonResponse(posts, nextCursor = null) {
   };
 }
 
-async function renderPostPage({ lang, search, switchHref, fetchImpl, linkBox = {} }) {
+async function renderPostPage({ lang, search, switchHref, fetchImpl, linkBox = {}, detailBox }) {
   const detail = { innerHTML: "" };
+  if (detailBox) detailBox.detail = detail;
   const outerBackLink = { hidden: false, classList: new FakeClassList() };
   const languageSwitch = createLanguageSwitch(switchHref);
   linkBox.link = languageSwitch;
@@ -174,6 +175,7 @@ async function renderPostPage({ lang, search, switchHref, fetchImpl, linkBox = {
     const moduleUrl = new URL("../assets/js/pages/post.js", import.meta.url);
     moduleUrl.searchParams.set("test", `${Date.now()}-${Math.random()}`);
     await import(moduleUrl.href);
+    await new Promise((resolve) => setTimeout(resolve, 0));
     return { detail, fakeDocument, languageSwitch, created };
   } finally {
     globalThis.document = originalDocument;
@@ -244,40 +246,108 @@ test("post toggle falls back to the other writing page when the slug is missing"
   }
 });
 
-test("post toggle points at writing until the other locale confirms the slug", async () => {
-  let release;
-  const gate = new Promise((resolve) => {
-    release = resolve;
+test("post page renders when its own list loads and updates the toggle after the other locale resolves", async () => {
+  let releaseOther;
+  const otherGate = new Promise((resolve) => {
+    releaseOther = resolve;
   });
-  let markStarted;
-  const started = new Promise((resolve) => {
-    markStarted = resolve;
+  let markOtherStarted;
+  const otherStarted = new Promise((resolve) => {
+    markOtherStarted = resolve;
   });
   const linkBox = {};
-  let hrefDuringCheck = "";
+  const detailBox = {};
 
   const pending = renderPostPage({
     lang: "en",
     search: "?slug=shared-essay",
     switchHref: "zh/post.html?slug=shared-essay",
     linkBox,
+    detailBox,
     fetchImpl: async (url) => {
       if (String(url).includes("collection=chinese")) {
-        hrefDuringCheck = linkBox.link.hrefValue;
-        markStarted();
-        await gate;
+        markOtherStarted();
+        await otherGate;
         return jsonResponse([remoteNote("zh-shared-essay", "共享")]);
       }
       return jsonResponse([remoteNote("shared-essay", "Shared Essay")]);
     }
   });
 
-  await started;
-  assert.equal(hrefDuringCheck, "zh/writing.html");
-  release();
+  await otherStarted;
+  for (let attempt = 0; attempt < 20 && !detailBox.detail.innerHTML.includes("Shared Essay"); attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  assert.match(detailBox.detail.innerHTML, /Shared Essay/);
+  assert.equal(linkBox.link.hrefValue, "zh/writing.html");
 
-  const { languageSwitch } = await pending;
+  releaseOther();
+  const { languageSwitch, fakeDocument } = await pending;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(fakeDocument.title, "Shared Essay | Anjou Zhao");
   assert.equal(languageSwitch.hrefValue, "zh/post.html?slug=shared-essay");
+});
+
+test("post toggle updates as soon as the other locale resolves, without waiting to render", async () => {
+  let releaseCurrent;
+  const currentGate = new Promise((resolve) => {
+    releaseCurrent = resolve;
+  });
+  const linkBox = {};
+  const detailBox = {};
+
+  const pending = renderPostPage({
+    lang: "en",
+    search: "?slug=shared-essay",
+    switchHref: "zh/post.html?slug=shared-essay",
+    linkBox,
+    detailBox,
+    fetchImpl: async (url) => {
+      if (String(url).includes("collection=chinese")) {
+        return jsonResponse([remoteNote("zh-shared-essay", "共享")]);
+      }
+      await currentGate;
+      return jsonResponse([remoteNote("shared-essay", "Shared Essay")]);
+    }
+  });
+
+  for (let attempt = 0; attempt < 20 && linkBox.link.hrefValue !== "zh/post.html?slug=shared-essay"; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  assert.equal(detailBox.detail.innerHTML, "");
+  assert.equal(linkBox.link.hrefValue, "zh/post.html?slug=shared-essay");
+
+  releaseCurrent();
+  const { fakeDocument, detail } = await pending;
+  assert.equal(fakeDocument.title, "Shared Essay | Anjou Zhao");
+  assert.match(detail.innerHTML, /Shared Essay/);
+});
+
+test("untitled post page uses the body heading for the visible title and document title", async () => {
+  const { detail, fakeDocument, languageSwitch, created } = await renderPostPage({
+    lang: "en",
+    search: "?slug=notes-on-pg-how-to-make-wealth",
+    switchHref: "zh/post.html?slug=notes-on-pg-how-to-make-wealth",
+    fetchImpl: async (url) => {
+      if (String(url).includes("collection=chinese")) return jsonResponse([]);
+      return jsonResponse([{
+        slug: "notes-on-pg-how-to-make-wealth",
+        title: null,
+        format: "quote",
+        bodyHtml: "<h2>Notes on Paul Graham&#39;s &quot;How to Make Wealth&quot;</h2><p>Source: paulgraham.com/earn.html</p>",
+        bodyText: "Notes on Paul Graham's \"How to Make Wealth\" Source: paulgraham.com/earn.html",
+        quoteText: "So how",
+        publishedAt: 1706000000
+      }]);
+    }
+  });
+
+  assert.equal(fakeDocument.title, "Notes on Paul Graham's \"How to Make Wealth\" | Anjou Zhao");
+  assert.match(detail.innerHTML, /<h1 class="post-heading">Notes on Paul Graham&#039;s &quot;How to Make Wealth&quot;<\/h1>/);
+  assert.equal((detail.innerHTML.match(/How to Make Wealth/g) || []).length, 1);
+  assert.match(detail.innerHTML, /Source: paulgraham.com\/earn.html/);
+  assert.equal(languageSwitch.hrefValue, "zh/writing.html");
+  assert.equal(created.length, 0);
 });
 
 test("post toggle falls back to writing when the other-locale request fails", async () => {
