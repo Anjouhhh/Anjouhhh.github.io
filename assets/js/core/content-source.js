@@ -169,15 +169,17 @@ export async function fetchJantPosts(baseUrl, locale = "en", {
   fetchImpl = globalThis.fetch,
   timeoutMs = 5000,
   collectionSlug = "",
-  contentMode = ""
+  contentMode = "",
+  maxPages = MAX_PAGES
 } = {}) {
   if (!baseUrl || typeof fetchImpl !== "function") return [];
 
   const remotePosts = [];
   let cursor = "";
   const mode = contentMode || getContentMode(locale);
+  const pageLimit = Number.isInteger(maxPages) && maxPages > 0 ? maxPages : MAX_PAGES;
 
-  for (let page = 0; page < MAX_PAGES; page += 1) {
+  for (let page = 0; page < pageLimit; page += 1) {
     const payload = await requestPage(apiUrl(baseUrl, cursor, collectionSlug, mode), fetchImpl, timeoutMs);
     if (!Array.isArray(payload?.posts)) throw new Error("Jant API returned an invalid posts payload");
 
@@ -200,6 +202,24 @@ export async function fetchJantPosts(baseUrl, locale = "en", {
       readingTime: local.readingTime
     };
   }).filter(Boolean);
+}
+
+export async function localeHasPost(locale, slug, options = {}) {
+  if (!slug) return false;
+
+  const baseUrl = options.baseUrl ?? getBaseUrl(locale);
+  if (!baseUrl) {
+    return getFallbackPosts(locale).some((post) => post.slug === slug);
+  }
+
+  const remotePosts = await fetchJantPosts(baseUrl, locale, {
+    fetchImpl: options.fetchImpl,
+    timeoutMs: options.timeoutMs,
+    collectionSlug: options.collectionSlug ?? getCollectionSlug(locale),
+    contentMode: options.contentMode ?? getContentMode(locale),
+    maxPages: 1
+  });
+  return remotePosts.some((post) => post.slug === slug);
 }
 
 export async function loadPosts(locale = "en", options = {}) {
