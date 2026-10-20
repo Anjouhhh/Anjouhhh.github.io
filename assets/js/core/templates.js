@@ -162,7 +162,7 @@ export function renderProjectList(projects, locale = "en") {
   return projects.map((project) => `
     <a class="card" href="project.html?slug=${encodeURIComponent(project.slug)}">
       <div class="section-head">
-        <h3>${escapeHtml(project.title)}</h3>
+        <h2 class="project-card-title">${escapeHtml(project.title)}</h2>
         <span class="status ${escapeHtml(project.status)}">${escapeHtml(text.statuses[project.status] ?? project.status)}</span>
       </div>
       <p>${escapeHtml(project.summary)}</p>
