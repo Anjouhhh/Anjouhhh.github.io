@@ -92,13 +92,73 @@ function firstCollection(post, locale) {
   return collection?.title || collection?.name || collection?.slug || DEFAULT_TOPIC[locale];
 }
 
+function headingText(value) {
+  return decodeHtmlEntities(String(value ?? "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+}
+
+function takeHtmlHeading(source) {
+  const html = String(source ?? "");
+  const pattern = /<h([1-3])\b[^>]*>([\s\S]*?)<\/h\1>/gi;
+  let match = pattern.exec(html);
+  while (match) {
+    const text = headingText(match[2]);
+    if (text) {
+      return {
+        title: text,
+        rest: html.slice(0, match.index) + html.slice(match.index + match[0].length)
+      };
+    }
+    match = pattern.exec(html);
+  }
+  return null;
+}
+
+function takeMarkdownHeading(source) {
+  const text = String(source ?? "");
+  const pattern = /^[ \t]{0,3}#{1,3}[ \t]+([^\r\n]*)$/gm;
+  let match = pattern.exec(text);
+  while (match) {
+    const textValue = headingText(match[1].replace(/[ \t]+#+\s*$/, ""));
+    if (textValue) {
+      return {
+        title: textValue,
+        rest: (text.slice(0, match.index) + text.slice(match.index + match[0].length)).trim()
+      };
+    }
+    match = pattern.exec(text);
+  }
+  return null;
+}
+
+function titleFromBody(bodyHtml, bodyText) {
+  const htmlHeading = takeHtmlHeading(bodyHtml);
+  if (htmlHeading) return { title: htmlHeading.title, bodyHtml: htmlHeading.rest, bodyText };
+
+  const textHeading = takeHtmlHeading(bodyText);
+  if (textHeading) return { title: textHeading.title, bodyHtml, bodyText: textHeading.rest.trim() };
+
+  const markdownHeading = takeMarkdownHeading(bodyText);
+  if (markdownHeading) return { title: markdownHeading.title, bodyHtml, bodyText: markdownHeading.rest };
+
+  return null;
+}
+
 export function mapJantPost(post, locale = "en") {
   if (!post || typeof post.slug !== "string" || !post.slug.trim()) return null;
 
   const format = Object.hasOwn(FORMAT_LABELS.en, post.format) ? post.format : "note";
-  const bodyText = String(post.bodyText ?? "").trim();
+  let bodyText = String(post.bodyText ?? "").trim();
+  let bodyHtml = String(post.bodyHtml ?? "");
   const quoteText = String(post.quoteText ?? "").trim();
-  const title = String(post.title ?? "").trim();
+  let title = String(post.title ?? "").trim();
+  if (!title) {
+    const heading = titleFromBody(bodyHtml, bodyText);
+    if (heading) {
+      title = heading.title;
+      bodyHtml = heading.bodyHtml;
+      bodyText = heading.bodyText;
+    }
+  }
 
   // For link format: sourceUrl is the external link URL, url is internal link
   // For quote format: sourceUrl is the source link (from quoteText attribution)
@@ -109,8 +169,8 @@ export function mapJantPost(post, locale = "en") {
   // - quote: content should be the personal thoughts (bodyText)
   // - note: content is the notes (bodyText)
   // - link: content is the commentary (bodyText)
-  const content = bodyText || post.bodyHtml
-    ? splitParagraphs(bodyText, title || quoteText || FORMAT_LABELS[locale]?.[format] || format, post.bodyHtml)
+  const content = bodyText || bodyHtml
+    ? splitParagraphs(bodyText, title || quoteText || FORMAT_LABELS[locale]?.[format] || format, bodyHtml)
     : [];
 
   // Summary for display: quote shows the quote, others show first paragraph of content

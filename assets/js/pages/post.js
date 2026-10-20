@@ -22,12 +22,13 @@ const otherHasPostPromise = switchTargets
   ? localeHasPost(otherLocale, slug).catch(() => false)
   : Promise.resolve(false);
 
-const pagePosts = await pagePostsPromise;
-const otherHasPost = await otherHasPostPromise;
-
-if (languageSwitch && switchTargets && otherHasPost) {
-  languageSwitch.setAttribute("href", switchTargets.post);
+if (languageSwitch && switchTargets) {
+  otherHasPostPromise.then((otherHasPost) => {
+    if (otherHasPost) languageSwitch.setAttribute("href", switchTargets.post);
+  });
 }
+
+const pagePosts = await pagePostsPromise;
 
 const post = pagePosts.find((item) => item.slug === slug);
 
