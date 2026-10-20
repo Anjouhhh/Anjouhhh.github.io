@@ -4,6 +4,7 @@ import { posts } from "../assets/js/data/posts.js";
 import {
   fetchJantPosts,
   loadPosts,
+  localeHasPost,
   mapJantPost
 } from "../assets/js/core/content-source.js";
 
@@ -152,6 +153,68 @@ test("configured loading scopes Jant requests to the locale collection", async (
   assert.equal(result[0].slug, "remote-only");
   assert.match(requests[0], /\/api\/public\/archive\?/);
   assert.match(requests[0], /collection=english/);
+});
+
+test("locale existence check uses one page of the other locale's endpoint", async () => {
+  const requests = [];
+  const found = await localeHasPost("zh", "proof-writing-is-a-design-problem", {
+    baseUrl: "https://cms.example.com",
+    fetchImpl: async (url) => {
+      requests.push(url);
+      return {
+        ok: true,
+        json: async () => ({
+          posts: [{
+            slug: "zh-proof-writing-is-a-design-problem",
+            title: "证明写作也是一个设计问题",
+            bodyText: "第一段",
+            publishedAt: 1706000000
+          }],
+          nextCursor: "more"
+        })
+      };
+    }
+  });
+
+  assert.equal(found, true);
+  assert.equal(requests.length, 1);
+  assert.match(requests[0], /\/api\/public\/posts\?limit=100&collection=chinese$/);
+});
+
+test("locale existence check reports a missing remote slug without local fallback", async () => {
+  const found = await localeHasPost("en", "proof-writing-is-a-design-problem", {
+    baseUrl: "https://cms.example.com",
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({ posts: [], nextCursor: null })
+    })
+  });
+
+  assert.equal(found, false);
+});
+
+test("locale existence check throws when the remote request fails", async () => {
+  await assert.rejects(
+    () => localeHasPost("en", "proof-writing-is-a-design-problem", {
+      baseUrl: "https://cms.example.com",
+      fetchImpl: async () => { throw new Error("offline"); }
+    }),
+    /offline/
+  );
+});
+
+test("locale existence check uses mirrored local posts when Jant is not configured", async () => {
+  const requests = [];
+  const found = await localeHasPost("zh", "proof-writing-is-a-design-problem", {
+    baseUrl: "",
+    fetchImpl: async (url) => {
+      requests.push(url);
+      return { ok: true, json: async () => ({ posts: [], nextCursor: null }) };
+    }
+  });
+
+  assert.equal(found, true);
+  assert.deepEqual(requests, []);
 });
 
 test("Jant failures fall back to local content", async () => {
